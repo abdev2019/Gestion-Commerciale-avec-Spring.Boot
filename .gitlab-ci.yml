@@ -1,0 +1,27 @@
+stages:
+  - build 
+  - deploy
+
+build:
+  stage: build
+  image: maven:3.3.9-jdk-8
+  script:
+    - mvn clean package
+  tags:
+    - docker
+    - shared  
+ 
+    
+deploy_staging:
+  stage: deploy
+  image: ruby:2.3
+  script:
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app=gcrec --api-key=$HEROKU_API_KEY2 
+  only:
+    - master
+  tags:
+    - docker
+    - shared

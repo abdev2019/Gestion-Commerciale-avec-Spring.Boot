@@ -1,0 +1,198 @@
+<div class="modal fade" id="divFormulaireTvas" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title " id="exampleModalLabel"> 
+		    	TVA  
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  
+	<div> 
+        <div class="card-body"> 
+        	<div class="row">
+        		<div class="col-md-4">
+	        		Nouveau Designation : 
+		        	<input value="" id="designationNouveauTva" class="form-control" aria-label="Example select with button addon" />
+		        	
+		        	Taux : 
+		       			<div class="input-group"> 
+		   			    <input value=""  type='number' id="tauxNouveauTva" class="form-control" aria-label="Example select with button addon" />
+			       		 
+					  	<div class="input-group-append">
+					    <span class="input-group-text">%</span> 
+					  	</div> 
+				     	</div> 
+				     <br> 
+				     <button id="btnAddTva" class="btn btn-primary" type="button">
+		       			<i class="fa fa-check fa-x"></i> Enregistrer
+	      			</button> 
+        		</div>
+	        	<div class="col" style="overflow-y:scroll;max-height:400px">
+		        	<table class="table table-hover" >
+			        	<thead>
+			        		<tr>
+				        		<th>Designation</th>
+				        		<th>Taux(%)</th> 
+				        		<th> 
+				        		</th>
+			        		</tr>
+		        		</thead>
+			        	<tbody id="tbodyListeTvas">  
+			        	<tr th:each="tva:${tvas}" th:id="'tr'+${tva.code}">
+			        		<td th:text="${tva.designation}" th:id="'des_'+${tva.code}"></td>
+			        		<td th:text="${tva.taux}"  th:id="'taux_'+${tva.code}"></td> 
+			        		<td>
+			        			<div class="input-group-append">
+			        				<button th:id="btnUpdateTvaOk+${tva.code}" class="btn btn-primary btn-sm" style="display:none" type="button" th:onclick="'editDone(this,\''+${tva.code}+'\')'">
+						       			<i class="fa fa-check fa-x"></i>
+					      			</button> 
+						       		<button th:id="btnFormulaireUpdateTva+${tva.code}" class="btn btn-success btn-sm" type="button" th:onclick="'edit(this,\''+${tva.code}+'\')'">
+						       			<i class="fa fa-edit fa-x"></i>
+					      			</button>
+					      			<button id="btnDeleteTva" class="btn btn-danger btn-sm" type="button" th:onclick="'deleteTva(\''+${tva.code}+'\')'">
+						       			<i class="fa fa-trash fa-x"></i>
+					      			</button>
+						       	</div>
+			        		</td>
+			       		</tr> 
+			        	</tbody>
+		        	</table>  
+	        	</div>
+        	</div>  
+		</div> 
+	</div>   
+	
+ </div> 
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+	
+	function editDone(btn,id)
+	{  
+	    var ipt = $("#des_"+id).find("input")[0]; 
+	    $("#des_"+id).html(ipt.value);
+ 
+	    var ipt2 = $("#taux_"+id).find("input")[0]; 
+	    $("#taux_"+id).html(ipt2.value); 
+	    
+		updateTva(id, ipt.value, ipt2.value ); 
+		
+		$(btn).hide();
+		$("#btnFormulaireUpdateTva"+id).show();
+	}
+	
+	function edit(btn, id)
+	{ 
+		$(btn).hide();
+		$("#btnUpdateTvaOk"+id).show(); 
+	
+	    if($("#des_"+id).find("input").length !== 0) return false;
+	    var ipt = $("<input>");
+	    ipt.val($("#des_"+id).text());
+	    $("#des_"+id).html(ipt);
+
+	    if($("#taux_"+id).find("input").length !== 0) return false;
+	    var ipt2 = $("<input type='number'>");
+	    ipt2.val($("#taux_"+id).text());
+	    $("#taux_"+id).html(ipt2); 
+	}
+	
+	function updateTva(id, des, taux)
+	{   
+		$.ajax({ 
+			url : wwwpath+"/tva/save", 
+			data : {    code : id,
+						designation : des,
+						taux : taux
+				},
+			type : "POST",
+			dataType : "json",  
+			success : function( json ) {   
+				alert("Tva "+json.designation+" est mise à jour");
+				$("#listeTvasNouveauArticle option[value="+json.code+"]").text(json.designation); 
+				$("#listeTvasUpdateArticle option[value="+json.code+"]").text(json.designation); 
+			},
+			error : function( xhr, status ) { alert("Erreur...");console.log(xhr); } 
+		});
+	}
+	
+	function deleteTva(id){  
+		$.ajax({ 
+			url : wwwpath+"/tva/delete", 
+			data : {    code : id}, 
+			type : "POST",
+			dataType : "json",  
+			success : function( json ) {   
+				alert("Tva "+json.designation+" est supprimé");
+				$("#tr"+id ).remove();
+				$("#listeTvasNouveauArticle option[value="+id+"]").remove(); 
+				$("#listeTvasUpdateArticle option[value="+id+"]").remove(); 
+			},
+			error : function( xhr, status ) { alert("Erreur..."); } 
+		});
+	}
+	
+	$( document ).ready(function() { 
+		$("#btnAddTva").click(
+			function(){  
+				$.ajax({ 
+					url : wwwpath+"/tva/save", 
+					data : { 	code:"", 
+								designation : $('#designationNouveauTva').val(),
+								taux : $('#tauxNouveauTva').val()
+					}, 
+					type : "POST",
+					dataType : "json",  
+					success : function( json ) {   
+						alert("Tva ajouté");
+						
+						var tr = $("<tr id='tr"+json.code+"'>"); 
+						
+						var tdDes  = $("<td id='des_'"+json.code+">"); 
+						tdDes.html(json.designation);
+						
+						var tdTaux = $("<td id='taux_'"+json.code+" type='number'>");
+						tdTaux.html(json.taux);
+						
+						var tdBtns = $("<td>");
+						
+						var btnUpdateOk = $("<button id='btnUpdateTvaOk"+json.code+"' class='btn btn-primary btn-sm' >"); 
+						$(btnUpdateOk).click(function(){editDone(btnUpdateOk,json.code);});
+						btnUpdateOk.hide();
+						btnUpdateOk.html('<i class="fa fa-check fa-x"></i>');
+						tdBtns.append(btnUpdateOk); 
+						
+						var btnEdit = $("<button id='btnFormulaireUpdateTva"+json.code+"' class='btn btn-success btn-sm' >"); 
+						$(btnEdit).click(function(){ edit(btnEdit,json.code); }); 
+						btnEdit.html('<i class="fa fa-check fa-x"></i>');
+						tdBtns.append(btnEdit); 
+						
+						var btnDelete = $("<button id='btnDeleteTva"+json.code+"' class='btn btn-danger btn-sm' >"); 
+						$(btnDelete).click(function(){ deleteTva(json.code);}); 
+						btnDelete.html('<i class="fa fa-trash fa-x"></i>');
+						tdBtns.append(btnDelete); 
+						
+						tr.append(tdDes);
+						tr.append(tdTaux); 
+						tr.append(tdBtns);
+						
+						$("#tbodyListeTvas").append(tr);
+						
+						$("#listeTvasNouveauArticle").append("<option value=\""+json.code+"\">"+json.designation+"</option>"); 
+						$("#listeTvasUpdateArticle").append("<option value=\""+json.code+"\">"+json.designation+"</option>");  
+					},
+					error : function( xhr, status ) { alert("Erreur..."); } 
+				});
+			}
+		);
+	});
+</script>
+<style>
+	.modal div{border-radius:0}
+</style>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	    layout:decorator="template">
+	    
+<head> 
+<meta charset="utf-8">
+<title>Commandes</title>   
+</head>
+
+<body>
+<div layout:fragment="body" >
+	 <script type="text/javascript">$("#page").append('Commandes')</script> 
+	 
+	<div >  
+			<div class="card"> 
+				<div class="card-header text-center">Commandes</div>
+				<div class="card-body"  > 
+					<div class="alert-warning text-success" th:if="${updateOk}" th:text="${updateOk}"></div>
+					<div class="alert-warning text-primary" th:if="${addOk}" th:text="${addOk}"></div>
+					<div class="alert-warning text-danger" th:if="${deleteOk}" th:text="${deleteOk}"></div>
+ 					 
+					<div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_COMMANDES')" class="col text-right mt-3" >
+						<a class="btn btn-info btn-sm" th:href="@{/commandes/nouveau}">
+						<i class="fa fa-plus text-light"></i> Ajouter
+						</a>
+					</div> 
+					
+ 					<div id="rowCommandes" class="row" style="margin:15px" > 
+							<form th:action="@{/commandes}" >
+ 							<div class="input-group"> 
+		 						<input name="num" class="form-control form-control-sm" placeholder="Numéro de commande..." th:value="${numero}"/>
+		 						<div class="input-group-append">
+		 						<button >GO</button>
+		 						</div>
+							</div> 
+	 						</form> 
+	 						<div class="col p-0" >  
+								<div class="dropdown float-right">
+								  	<button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								    	Nombre de lignes
+								  	</button> 
+								  	<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+									    <a class="dropdown-item" th:href="@{/commandes(size=4,pagevente=${pageCourantVente},pageachat=${pageCourantAchat},type=${type},client=${clt},fournisseur=${frs},dateachat=${dateachat},datevente=${datevente})}">4</a>
+									    <a class="dropdown-item" th:href="@{/commandes(size=10,pagevente=${pageCourantVente},pageachat=${pageCourantAchat},type=${type},client=${clt},fournisseur=${frs},dateachat=${dateachat},datevente=${datevente} )}">10</a> 
+									    <a class="dropdown-item" th:href="@{/commandes(size=20,pagevente=${pageCourantVente},pageachat=${pageCourantAchat},type=${type},client=${clt},fournisseur=${frs},dateachat=${dateachat},datevente=${datevente} )}">20</a>
+									    <a class="dropdown-item" th:href="@{/commandes(size=30,pagevente=${pageCourantVente},pageachat=${pageCourantAchat},type=${type},client=${clt},fournisseur=${frs},dateachat=${dateachat},datevente=${datevente} )}">30</a>
+									    <a class="dropdown-item" th:href="@{/commandes(size=50,pagevente=${pageCourantVente},pageachat=${pageCourantAchat},type=${type},client=${clt},fournisseur=${frs},dateachat=${dateachat},datevente=${datevente} )}">50</a>
+									    <a class="dropdown-item" th:href="@{/commandes(size=80,pagevente=${pageCourantVente},pageachat=${pageCourantAchat},type=${type},client=${clt},fournisseur=${frs},dateachat=${dateachat},datevente=${datevente} )}">80</a> 
+									    <a class="dropdown-item" th:href="@{/commandes(size=100,pagevente=${pageCourantVente},pageachat=${pageCourantAchat},type=${type},client=${clt},fournisseur=${frs},dateachat=${dateachat},datevente=${datevente} )}">100</a>
+								  	</div>
+								</div> 
+							</div>  
+ 					</div>
+ 					
+ 					          	
+			        <div class="row">
+			       	
+			       		<div th:if="${achat}" class="col" > 
+		 					
+		 						<div  class="card card-body"  >  
+									<div class="card-header" >
+										Achats   
+										<b class="float-right" th:text="'Total : '+${totalAchats}+' MAD'"></b>
+									</div>
+									<div class="card-body" >  
+										<div class="row py-3">   
+											<div class="col-md-3">  
+										      	<div class="input-group"> 
+										      		<input type="date" id="date"  th:value="${dateachat}" class="form-control form-control-sm"  
+							 							th:onchange="'location.href=\'/commandes?dateachat=\'+this.value+\'&type='+${type}+'&size='+${size}+'&fournisseur='+${frs}+'&client='+${clt}+'&datevente='+${datevente}+'&valideachat='+${valideachat}+'&validevente='+${validevente}+'&pagevente='+${pageCourantVente}+'\'' "
+							 						/> 
+												</div>
+									      	</div> 
+											
+											<div class="col">  
+										      	<div class="input-group mb-3">
+												  	<div class="input-group-prepend">
+												    	<label class="col-form-label col-form-label-sm input-group-text " style="padding:0" for="fournisseur">Fournisseur</label>
+												  	</div> 
+													<select id="fournisseur" class="custom-select  form-control-sm"   
+														th:onchange="'location.href=\'/commandes?fournisseur=\'+this.value+\'&type='+${type}+'&size='+${size}+'&dateachat='+${dateachat}+'&client='+${clt}+'&valideachat='+${valideachat}+'&validevente='+${validevente}+'&datevente='+${datevente}+'&pagevente='+${pageCourantVente}+'\'' ">
+										      			<option value="">Tous</option> 
+										      			<option th:selected="${frs}==${fournisseur.code}" th:each="fournisseur:${fournisseurs}" th:value="${fournisseur.code}" th:text="${fournisseur.code}+' ('+${fournisseur.nom}+')'"></option>
+										      		</select>
+												</div>
+									      	</div>
+									      	
+											<div class="col">  
+										      	<div class="input-group col-md-10 ml-4" style="padding:0"> 
+												  	<div class="input-group-prepend">
+												    	<label class="input-group-text  col-form-label-sm  " style="padding:0" for="validite">Validité</label>
+												  	</div>  
+										      		<select id="validite" class="custom-select  form-control-sm"  
+														th:onchange="'location.href=\'/commandes?valideachat=\'+this.value+\'&type='+${type}+'&size='+${size}+'&datevente='+${datevente}+'&client='+${clt}+'&validevente='+${validevente}+'&dateachat='+${dateachat}+'&fournisseur='+${frs}+'&pagevente='+${pageCourantVente}+'\'' ">
+											      		<option value="-1" th:selected="${valideachat}=='-1'">Tous</option> 
+											      		<option th:selected="${valideachat}=='1'" value="1" >VALIDE</option>
+											      		<option th:selected="${valideachat}=='0'" value="0" >NON VALIDE</option>
+										      		</select> 
+												</div>
+									      	</div>  
+								      	</div>
+						         		<div  sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SHOW_COMMANDES')" class="col" id="commandesAchat"> 
+										<div  class="limit">
+								           <table class="table table-hover">
+												<thead>
+													<tr> 
+														<th>#</th>
+														<th>Date</th> 
+														<th>Fournisseur</th>
+														<th>Validé</th> 
+														<th></th>
+														<th></th> 
+													</tr>
+												</thead>
+												<tbody>
+													<tr th:each="p:${commandesAchat}" th:id="'tr'+${p.numero}"> 
+														<td th:text="${p.numero}"></td>
+														<td th:text="${p.dateCommande}?${#dates.format(p.dateCommande, 'dd-MM-yyyy')}"></td>  
+														<td th:if="${achat}" th:text="${p.fournisseur}"></td>
+														<td th:if="${p.valide}">
+															<i class="fa fa-check text-success p-1" ></i></td> 
+														<td th:if="${p.valide}==false">
+															<a th:href="@{/factures/nouveau(numCmd=${p.numero})}" class="btn-info btn-sm">
+																Facturer</a></td> 
+														<td class="px-0">
+															<a class="btn-success btn-sm" target="_blanc" th:href="@{/commandes/get(numero=${p.numero})}">Details</a>
+														</td>
+														<td sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_COMMANDES')"> 
+															<a th:href="@{/commandes/edit(numero=${p.numero})}" id="btnEdit" class=" btn-primary btn-sm text-light"><i class="fa fa-edit"></i></a>
+															<a class=" btn-danger btn-sm"  th:href="@{/commandes/delete(numero=${p.numero})}" > <i class="fa fa-remove"></i></a>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+							           </div>
+										<div>
+								          	<ul class="pagination bg-dark" style="border-radius:0;">
+												<li th:each="pa,status:${pagesAchat}" class="nav-item">
+													<a 	th:class="${status.index}==${pageCourantAchat}?'alert-secondary nav-link ':'nav-link '" 
+														th:href="@{commandes(pageachat=${status.index},pagevente=${pageCourantVente},size=${size},type=${type},client=${clt},fournisseur=${frs},dateachat=${dateachat},datevente=${datevente},validevente=${validevente},valideachat=${valideachat})}" th:text="${status.index}+1"></a>
+												</li>
+											</ul> 
+							           	</div>
+						         	</div>
+						         	</div>
+					         	</div> 
+						</div>
+			         	  	
+			         	 	
+						<div th:if="${vente}" class="col"  > 
+							<div class="card">
+								<div class="card-header" >
+									Ventes   
+									<b class="float-right" th:text="'Total : '+${totalVentes}+' MAD'"></b>
+								</div>
+								<div class="card-body" > 
+								<div class="row py-3">   
+										<div class="col-md-3">  
+									      	<div class="input-group"> 
+									      		<input type="date" id="date"  th:value="${datevente}" class="form-control form-control-sm"  
+													th:onchange="'location.href=\'/commandes?datevente=\'+this.value+\'&type='+${type}+'&size='+${size}+'&fournisseur='+${frs}+'&client='+${clt}+'&valideachat='+${valideachat}+'&validevente='+${validevente}+'&dateachat='+${dateachat}+'&pageachat='+${pageCourantAchat}+'\'' "
+												/> 
+											</div>
+								      	</div> 
+										
+										<div class="col">  
+									      	<div class="input-group mb-3">
+											  	<div class="input-group-prepend">
+											    	<label class="col-form-label col-form-label-sm input-group-text " style="padding:0" for="fournisseur">Client</label>
+											  	</div> 
+												<select  class="form-control form-control-sm col-auto"
+													 name="client" th:onchange="'location.href=\'/commandes?client=\'+this.value+\'&type='+${type}+'&size='+${size}+'&datevente='+${datevente}+'&fournisseur='+${frs}+'&valideachat='+${valideachat}+'&validevente='+${validevente}+'&dateachat='+${dateachat}+'&pageachat='+${pageCourantAchat}+'\'' "> 
+										      		<option  value="">Tous</option>
+										      		<option th:selected="${clt}==${client.code}" th:each="client:${clients}" th:value="${client.code}" th:text="${client.code}+' ('+${client.nom}+' '+${client.prenom}+')'"></option>
+										      	</select>
+											</div>
+								      	</div>
+								      	
+										<div class="col">  
+									      	<div class="input-group col-md-10 ml-4" style="padding:0"> 
+											  	<div class="input-group-prepend">
+											    	<label class="input-group-text  col-form-label-sm  " style="padding:0" for="validite">Validité</label>
+											  	</div>  
+									      		<select id="validite" class="custom-select  form-control-sm"  
+													th:onchange="'location.href=\'/commandes?validevente=\'+this.value+\'&type='+${type}+'&size='+${size}+'&datevente='+${datevente}+'&client='+${clt}+'&valideachat='+${valideachat}+'&dateachat='+${dateachat}+'&fournisseur='+${frs}+'&pageachat='+${pageCourantAchat}+'\'' ">
+										      		<option value="-1" th:selected="${validevente}=='-1'">Tous</option> 
+										      		<option  value="1" th:selected="${validevente}=='1'">VALIDE</option>
+										      		<option  value="0" th:selected="${validevente}=='0'">NON VALIDE</option>
+									      		</select> 
+											</div>
+								      	</div>  
+							      	</div>
+							 	<div  sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SHOW_COMMANDES')" class="col" id="commandesVente"> 
+									<div   class="limit">
+							           <table class="table table-hover ">
+											<thead>
+												<tr> 
+													<th>#</th>
+													<th>Date</th> 
+													<th>Client</th>
+													<th>Validité</th> 
+													<th></th> 
+													<th></th> 
+												</tr>
+											</thead>
+											<tbody>
+												<tr th:each="p:${commandesVente}" th:id="'tr'+${p.numero}"> 
+													<td th:text="${p.numero}"></td>
+													<td th:text="${p.dateCommande}?${#dates.format(p.dateCommande, 'dd-MM-yyyy')}"></td> 
+													<td th:if="${vente}" th:text="${p.client}"></td>
+													<td th:if="${p.valide}">
+														<i class="fa fa-check text-success p-1" ></i>
+													</td> 
+													<td th:if="${p.valide}==false">
+																<a class="btn-info btn-sm" target="_blanc" th:href="@{/factures/nouveau(numCmd=${p.numero})}">Facturer</a>
+													</td>  
+													<td class="px-0"> 
+														<a class="btn-success btn-sm" target="_blanc" th:href="@{/commandes/get(numero=${p.numero})}">Details</a>
+													</td>
+													 
+													<td sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_COMMANDES')" class="px-1" > 
+														<a th:href="@{/commandes/edit(numero=${p.numero})}" id="btnEdit" 
+															class=" btn-primary btn-sm text-light"> <i class="fa fa-edit"> </i></a>
+														<a class=" btn-danger btn-sm"  th:href="@{/commandes/delete(numero=${p.numero})}" > <i class="fa fa-remove"></i></a>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+							       </div>
+									<div>
+							          	<ul class="pagination bg-dark" style="border-radius:0">
+											<li th:each="pa,status:${pagesVente}" class="nav-item">
+												<a 	th:class="${status.index}==${pageCourantVente}?'alert-secondary nav-link ':'nav-link '" 
+													th:href="@{commandes(pagevente=${status.index},pageachat=${pageCourantAchat},size=${size},type=${type},client=${clt},fournisseur=${frs},dateachat=${dateachat},datevente=${datevente},validevente=${validevente},valideachat=${valideachat})}" th:text="${status.index}+1"></a>
+											</li>
+										</ul> 
+							       	</div>
+							 	</div> 
+							 	</div>
+							 </div>
+						</div>
+					
+					</div>	
+		         	
+	         	</div> 
+				
+				</div>
+			</div> 
+	</div>  
+ 
+</body>
+</html>

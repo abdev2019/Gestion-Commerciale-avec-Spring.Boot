@@ -1,0 +1,136 @@
+<div class="modal fade" id="divFormulaireFamilles" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title " id="exampleModalLabel"> 
+		    	Familles d'articles  
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  
+	<div> 
+        <div class="card-body">  
+        	Selectioner une categorie :
+        	<select id="listeFamilles" class="custom-select" >
+        		<option value="0">Selectioner...</option>
+        		<option th:each="famille:${familles}" th:text="${famille}" th:value="${famille.code}" > 
+        		</option>
+        	</select> 
+        	<br/><br/>
+	       	<div class="input-group">
+	     		<input value="" id="codeFamille" type="hidden"/>
+	       	
+	     		<input value="" id="designation1" class="form-control" aria-label="Example select with button addon" />
+	       		  
+		       	<div class="input-group-append"> 
+		       		<button id="btnUpdateFamille" class="btn btn-success" type="button">
+		       			<i class="fa fa-check fa-x"></i>
+	      			</button>
+	      			<button id="btnDeleteFamille" class="btn btn-danger" type="button">
+		       			<i class="fa fa-trash fa-x"></i>
+	      			</button>
+		       	</div>
+		     </div>
+		     <br/><br/>
+		     Nouveau famille :
+		     <div class="input-group">
+	     		<input id="designation2" class="form-control" aria-label="Example select with button addon" />
+	       		  
+		       	<div class="input-group-append"> 
+	      			<button id="btnAddFamille" class="btn btn-info" type="button">
+		       			<i class="fa fa-plus fa-x"></i>
+	      			</button>
+		       	</div>
+		     </div> 
+		</div> 
+	</div>   
+	
+ </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button> 
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+	$( document ).ready(function() {
+		$("#listeFamilles").change(
+			function(){ 
+				$('#codeFamille').val(
+						$("#listeFamilles").val()
+				);  
+				if($( this ).val()>0){
+					$('#designation1').val(
+						$( "#listeFamilles option:selected" ).text()
+					);
+				}
+				else{
+					$('#designation1').val(
+						""
+					);
+				}
+			}
+		);
+		
+		$("#btnUpdateFamille").click(
+			function(){  
+				$.ajax({ 
+					url : wwwpath+"/familles/save", 
+					data : {    code : $('#codeFamille').val(),
+						        designation : $('#designation1').val() },
+					type : "POST",
+					dataType : "json",  
+					success : function( json ) {   
+						alert("Categorie "+json.designation+" est mise à jour");
+						$( "#listeFamilles option:selected" ).text(json.designation); 
+						$("#familleNouveauArticle option[value="+json.code+"]").text(json.designation); 
+						$("#familleUpdateArticle option[value="+json.code+"]").text(json.designation); 
+					},
+					error : function( xhr, status ) { alert("Erreur...");console.log(xhr); } 
+				});
+			}
+		);
+		$("#btnDeleteFamille").click(
+			function(){  
+				$.ajax({ 
+					url : wwwpath+"/familles/delete", 
+					data : {    code : $('#codeFamille').val()}, 
+					type : "POST",
+					dataType : "json",  
+					success : function( json ) {   
+						alert("Categorie "+json.designation+" est supprimé");
+						$("#listeFamilles option:selected" ).remove();
+						$("#familleNouveauArticle option[value="+json.code+"]").remove(); 
+						$("#familleUpdateArticle option[value="+json.code+"]").remove(); 
+					},
+					error : function( xhr, status ) { alert("Erreur..."); } 
+				});
+			}
+		);
+		
+		$("#btnAddFamille").click(
+			function(){  
+				$.ajax({ 
+					url : wwwpath+"/familles/save", 
+					data : { code:"", designation : $('#designation2').val()}, 
+					type : "POST",
+					dataType : "json",  
+					success : function( json ) {   
+						alert("Famille ajouté");
+						$("#listeFamilles").append("<option value=\""+json.code+"\">"+json.designation+"</option>");
+						$("#familleNouveauArticle").append("<option value=\""+json.code+"\">"+json.designation+"</option>"); 
+						$("#familleUpdateArticle").append("<option value=\""+json.code+"\">"+json.designation+"</option>");  
+					},
+					error : function( xhr, status ) { alert("Erreur..."); } 
+				});
+			}
+		);
+	});
+</script>
+<style>
+	.modal div{border-radius:0}
+</style>

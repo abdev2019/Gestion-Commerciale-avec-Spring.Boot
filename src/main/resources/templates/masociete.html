@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	    layout:decorator="template">
+	    
+<head> 
+<meta charset="utf-8">
+<title>Notre societe</title> 
+</head>
+
+<body>
+<div layout:fragment="body"> 
+	<script type="text/javascript">$("#page").html('Ma societe')</script>
+	 
+	<div class="container-fluid"> 
+				
+			<div class=""> 
+				<div class="card-body" >
+				   
+		         	<div class="row py-3"> 
+		         	
+		         		<div class="col-md-4"> 
+		         			<div class="card">
+					            <div class="card-header">Votre logo :</div>
+			         			<div class="card-body text-left h4 mb-4 p-2 text-center">
+									<img  id="logo" style="width:250px" alt="LOGO" th:src="@{/resources/img/1.png}" />
+									<form sec:authorize="hasRole('ROLE_ADMIN')"
+										class="text-left mt-4" th:action="@{/masociete/logo/update}" method="post" enctype="multipart/form-data">
+										<input onchange="readURL(this)" type="file" class="form-control form" name="logo" />
+									 	<button class="btn btn-info mt-4">Changer</button>
+									</form>
+								</div>
+							</div>
+		         		</div>
+		         		<script sec:authorize="hasRole('ROLE_ADMIN')" type="text/javascript">
+			         		function readURL(input) {
+			                    if (input.files && input.files[0]) {
+			                        var reader = new FileReader();
+	
+			                        reader.onload = function (e) {
+			                            $('#logo')
+			                                .attr('src', e.target.result);
+			                        };
+	
+			                        reader.readAsDataURL(input.files[0]);
+			                    }
+			                }
+		         		</script>
+		         	
+			         	<div  
+			         		id="divInfoSociete" class="col"> 
+   							<div class="alert-success text-success alert" th:if="${updateOk}" th:text="${updateOk}"></div>
+			         		
+							<div class="card">
+					            <div class="card-header h5">
+					            	Informations  
+				            		<i sec:authorize="hasRole('ROLE_ADMIN')"
+				            		 class="fa fa-edit float-right btn-sm btn-primary" 
+				            		onclick="$('#formulaireUpdateFournisseur').show();$('#divInfoSociete').hide();"></i>
+				            		
+					            </div>
+					            <div class="card-body">  
+										<table class="table"> 
+										  <tbody> 
+										    <tr>
+										      <td><b>Nom</b></td>
+										      <td th:text="${masociete.nom}"></td>
+										    </tr>
+										    <tr>
+										      <td><b>Adresse</b>
+										        <br> </td>
+										      <td th:text="${masociete.adresse}"></td>
+										    </tr>
+										    <tr>
+										      <td><b>Raison Sociale</b>
+										        <br> </td>
+										      <td  th:text="${masociete.raisonSociale}"></td>
+										    </tr>
+										    <tr>
+										      <td><b>Capital</b></td>
+										      <td th:text="${masociete.capital}"> 
+										      </td>
+										    </tr> 
+										    
+										    <tr>
+										      <td><b>Compte bancaire.</b></td>
+										      	<td th:text="${masociete.compteBancaire}">
+									        	</td>
+										    </tr> 
+										    
+										    <tr>
+										      <td><b>E-mail</b></td>
+										      <td th:text="${masociete.email}"  ></td>
+										    </tr>
+										    <tr>
+										      <td><b>Tel.</b></td>
+										      	<td th:text="${masociete.tel}"></td>
+										    </tr>
+										    <tr>
+										      <td><b>Fax.</b></td>
+										      	<td th:text="${masociete.fax}">
+									        	</td>
+										    </tr> 
+										  </tbody>
+										</table> 
+					            </div>
+							</div>
+			         	</div>  
+		         	
+			         	<div sec:authorize="hasRole('ROLE_ADMIN')"	 
+			         		id="formulaireUpdateFournisseur" class="col" style="display:none"> 
+				          	<div class="card">
+					            <div class="card-header">
+					            	Mise à jour d'informations
+        					  		<a href="javascript:void(0)" class="closebtn btn-sm btn-secondary" style="border:none; float:right" 
+        					  			onclick="$('#formulaireUpdateFournisseur').hide();$('#divInfoSociete').show();">
+				  					<i class="fa fa-close"></i></a>
+				  					<a class="btn-sm btn-success float-right mr-2" type="submit" 
+				  						onclick="$('#formulaireUpdateFournisseur form').submit();"><i class="fa fa-check"></i></a> 
+					            </div>
+					            <div class="card-body"> 
+									<form method="post" th:action="@{/masociete/update}" name="formulaireUpdateFournisseur" 
+											th:object="${masociete}">
+							       		<input th:value="${masociete.code}" type="hidden" name="code" class="form-control form-control-sm">
+										
+										<table class="table"> 
+										  <tbody> 
+										    <tr>
+										      <td><b>Nom</b></td>
+										      <td>
+										        <input th:value="${masociete.nom}" type="text" name="nom" 
+										        class="form-control form-control-sm">
+										        <p th:errors="${fournisseur.nom}" class=" text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Adresse</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${masociete.adresse}" type="text" name="adresse" 
+										        class="form-control form-control-sm">
+										        <p th:errors="${fournisseur.adresse}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Raison Sociale</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${masociete.raisonSociale}" type="text" name="raisonSociale" 
+										        class="form-control form-control-sm">
+										        <p th:errors="${fournisseur.raisonSociale}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Capital</b></td>
+										      <td>
+										      		<input th:value="${masociete.capital}" name="capital" type="text"  class="form-control form-control-sm"/> 
+										      		<p th:errors="${fournisseur.capital}" class="text-danger"></p>
+										      </td>
+										    </tr> 
+										    
+										    <tr>
+										      <td><b>Compte bancaire.</b></td> 
+									        	<td>
+										      		<input th:value="${masociete.compteBancaire}" name="compteBancaire" type="text"  class="form-control form-control-sm"/> 
+										      		<p th:errors="${fournisseur.compteBancaire}" class="text-danger"></p>
+										      </td>
+										    </tr> 
+										    
+										    <tr>
+										      <td><b>E-mail</b></td>
+										      <td>
+										        <input th:value="${masociete.email}" type="text" name="email" 
+										        class="form-control form-control-sm">
+										        <p th:errors="${fournisseur.email}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Tel.</b></td>
+										      	<td>
+										        	<input name="tel" th:value="${masociete.tel}"  class="form-control form-control-sm"/>
+									        		<p th:errors="${fournisseur.tel}" class="text-danger"></p>
+									        	</td>
+										    </tr>
+										    <tr>
+										      <td><b>Fax.</b></td>
+										      	<td>
+										        	<input name="fax" th:value="${masociete.fax}"  class="form-control form-control-sm"/>
+									        		<p th:errors="${fournisseur.fax}" class="text-danger"></p>
+									        	</td>
+										    </tr> 
+										  </tbody>
+										</table>
+									</form>
+					            </div>
+							</div>
+				        </div> 
+				        
+				        <script th:if="${updateFailed}" type="text/javascript">
+				        	$('#formulaireUpdateFournisseur').show();$('#divInfoSociete').hide();
+				        </script> 
+					
+					</div> 
+				
+				</div>
+			</div> 
+	</div> 
+		  
+</div> 
+</body>
+</html>

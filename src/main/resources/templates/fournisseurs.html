@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	    layout:decorator="template">
+	    
+<head> 
+<meta charset="utf-8">
+<title>Fournisseurs</title>
+
+
+<script sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_FOURNISSEURS')" >
+	function openNavFormulaireUpdateFournisseur(id) { 
+		if(id!=null)getFournisseur(id); 
+		$("#listeFournisseurs").toggleClass("col-md-8");
+		$("#formulaireNouveauFournisseur").hide();
+		$("#formulaireUpdateFournisseur").show();
+	} 
+	
+	function closeNavFormulaireUpdateFournisseur() {  
+		$("#listeFournisseurs").toggleClass("col-md-8");
+	    $("tr").css("background-color","");
+		$("#formulaireUpdateFournisseur").hide();
+	} 
+	
+	function openNavFormulaireNouveauFournisseur() {  
+		$("tr").css("background-color","");
+		$("#formulaireUpdateFournisseur").hide(); 
+		$("#formulaireNouveauFournisseur").show();
+	} 
+	
+	function closeNavFormulaireNouveauFournisseur() { 
+		$("#formulaireNouveauFournisseur").hide(); 
+	} 
+	
+	function getFournisseur(id)
+	{ 
+		$.ajax({ 
+			url : wwwpath+"/fournisseurs/get", 
+			data : {    code : id  }, 
+			type : "POST",
+			dataType : "json",  
+			success : function( json ) {   
+				$("#codeFournisseurToUpdate").html(json.code);
+				document.formulaireUpdateFournisseur.code.value=json.code;
+				document.formulaireUpdateFournisseur.nom.value=json.nom;
+				document.formulaireUpdateFournisseur.raisonSociale.value=json.raisonSociale;
+				document.formulaireUpdateFournisseur.adresse.value=json.adresse;
+				document.formulaireUpdateFournisseur.email.value=json.email;
+				document.formulaireUpdateFournisseur.capital.value=json.capital;
+				document.formulaireUpdateFournisseur.tel.value=json.tel;
+				document.formulaireUpdateFournisseur.fax.value=json.fax;
+				$("tr").css("background-color","");
+				$("#tr"+id).css("background-color", "yellow");
+			},
+			error : function( xhr, status ) { alert("Erreur dans le serveur..."); } 
+		});
+	}
+</script>  
+</head>
+
+<body>
+<div layout:fragment="body"> 
+	 <script type="text/javascript">$("#page").html('Fournisseurs')</script>
+	 
+	<div class="container-fluid"  sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SHOW_FOURNISSEURS')" > 
+				
+			<div class="card bg-gradient"> 
+				<div class="card-header text-center">Fournisseurs</div>
+				<div class="card-body p-4" >
+					
+					<div class="col" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_FOURNISSEURS')"> 
+						<div class="alert alert-success text-success" th:if="${updateOk}" th:text="${updateOk}"></div>
+						<div class="alert alert-success text-primary" th:if="${addOk}" th:text="${addOk}"></div>
+						<div class="alert alert-danger text-danger" th:if="${deleteOk}" th:text="${deleteOk}"></div>
+					</div>
+					
+					<div class="row py-4">
+						
+						<form th:action="@{/fournisseurs}" class="col p-0">
+						<input type="hidden" name="size" th:value="${size}" />
+						<div class="col-md-8 input-group">  
+				      		<div class="input-group-prepend ">
+						    	<label class="col-form-label col-form-label-sm input-group-text p-0" for="mc"> &nbsp;Mot clé : &nbsp;</label>
+						  	</div>
+				      		<input type="text" id="mc" name="mc"  th:value="${mc}" 
+				      				placeholder="Nom, Adresse, tél..." class="form-control form-control-sm" /> 
+							<button type="submit">GO</button>
+						</div>
+						</form>
+						<div class="col">
+							<div class="dropdown" style="float:right">
+							  	<button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							    	Nombre de lignes
+							  	</button>
+							  	<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+								    <a class="dropdown-item" th:href="@{/fournisseurs(size=4 )}">4</a>
+								    <a class="dropdown-item" th:href="@{/fournisseurs(size=10 )}">10</a> 
+								    <a class="dropdown-item" th:href="@{/fournisseurs(size=20 )}">20</a>
+								    <a class="dropdown-item" th:href="@{/fournisseurs(size=30 )}">30</a>
+								    <a class="dropdown-item" th:href="@{/fournisseurs(size=50 )}">50</a>
+								    <a class="dropdown-item" th:href="@{/fournisseurs(size=80 )}">80</a> 
+								    <a class="dropdown-item" th:href="@{/fournisseurs(size=100 )}">100</a>
+							  	</div>
+							</div> 
+						</div>
+					</div>
+							
+					<div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_FOURNISSEURS')" id="formulaireNouveauFournisseur" class="col-md-12 mb-5" style="display:none" >
+					 
+			          	<div class="card"> 
+				            <div class="card-header">
+				            	Nouveau fournisseur
+       					  		<a href="javascript:void(0)" class="closebtn" style="border:none; float:right" onclick="closeNavFormulaireNouveauFournisseur()">
+			  					<i class="fa fa-close"></i>
+			  					</a>
+				            </div>
+				            <div class="card-body"> 
+								<form method="post" th:action="@{/fournisseurs/add}" class="row"> 
+									<table class="table col" style="border:none">
+										<tbody>
+											<tr>
+										      <td><b>Code</b></td>
+										      	<td>
+										       	<input th:value="${fournisseur.code}" type="text" name="code" class="form-control form-control-sm">
+										       	<p th:errors="${fournisseur.code}" class="text-danger"></p>
+									       		<p th:if="${dejaExist}" class="text-danger">Reference dèja existe !</p>
+									       		</td>
+										    	</tr>
+										    <tr>
+										      <td><b>Nom</b></td>
+										      <td>
+										        <input th:value="${fournisseur.nom}" type="text" name="nom" 
+										        class="form-control form-control-sm">
+										        <p th:errors="${fournisseur.nom}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Adresse</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${fournisseur.adresse}" type="text" name="adresse" 
+										        class="form-control form-control-sm">
+										        <p th:errors="${fournisseur.adresse}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Raison Sociale</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${fournisseur.raisonSociale}" type="text" name="raisonSociale" 
+										        class="form-control form-control-sm">
+										        <p th:errors="${fournisseur.raisonSociale}" class="text-danger"></p></td>
+										    </tr>
+										</tbody>
+									</table>
+									<table class="table col"> 
+									  <tbody> 
+									    <tr>
+									      <td><b>E-mail</b>
+									        <br> </td>
+									      <td>
+									        <input th:value="${fournisseur.email}" type="text" name="email" 
+									        class="form-control form-control-sm">
+									        <p th:errors="${fournisseur.email}" class="text-danger"></p></td>
+									    </tr>
+									    <tr>
+									      <td><b>Capital</b></td>
+									      <td>
+									      		<input th:value="${fournisseur.capital}" type="number" name="capital" class="form-control form-control-sm"/> 
+									      		<p th:errors="${fournisseur.capital}" class="text-danger"></p>
+									      </td>
+									    </tr>
+									    <tr>
+									      <td><b>Tel.</b></td>
+									      	<td>
+									        	<input name="tel" th:value="${fournisseur.tel}"  class="form-control form-control-sm"/>
+									        	<p th:errors="${fournisseur.tel}" class="text-danger"></p>
+								        	</td>
+									    </tr>
+									    <tr>
+									      <td><b>Fax.</b></td>
+									      	<td>
+									        	<input name="fax" th:value="${fournisseur.fax}"  class="form-control form-control-sm"/>
+									        	<p th:errors="${fournisseur.fax}" class="text-danger"></p>
+								        	</td>
+									    </tr>
+									    <tr>
+									      <td>&nbsp;</td>
+									      <td>
+									      <span th:if="${alert}" th:text="${alert}"></span>
+									      <br>
+									      	<a class="btn btn-light" onclick="closeNavFormulaireNouveauFournisseur()">Annuler</a>
+									        <button class="btn btn-primary" type="submit">Enregistrer</button>
+									      </td>
+									    </tr>
+									  </tbody>
+									</table>
+								</form>
+				            </div>
+						</div>
+			        </div>  
+						
+		         	<div class="row"> 
+			         	<div  id="listeFournisseurs" class="col"> 
+							<div class="limit">
+					           <table class="table table-hover">
+									<thead>
+										<tr>
+											<th></th>
+											<th>Code</th>
+											<th>Nom</th>
+											<th>Adresse</th>
+											<th>Raison Sociale</th>
+											<th>Capital</th>
+											<th>E-mail</th>
+											<th>Tél.</th>
+											<th>Fax</th> 
+											<th sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_FOURNISSEURS')">		           	
+												<a class="btn btn-info btn-sm  text-light" 
+													onclick="openNavFormulaireNouveauFournisseur()">
+													<i class="fa fa-plus"></i> 
+													Nouveau</a>
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="frs:${fournisseurs}" th:id="'tr'+${frs.code}">
+											<td><img alt="" th:src="@{'../img/'+${frs.code}+'.png'}"  style="width:45px;height:45px" ></td>
+											<td th:text="${frs.code}"></td>
+											<td th:text="${frs.nom}"></td>
+											<td th:text="${frs.adresse}"></td>
+											<td th:text="${frs.raisonSociale}"></td>
+											<td th:text="${frs.capital}"></td>
+											<td th:text="${frs.email}"></td>
+											<td th:text="${frs.tel}"></td> 
+											<td th:text="${frs.fax}"></td>
+											<td sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_FOURNISSEURS')">
+												<a class="btn-danger btn-sm"  th:href="@{/fournisseurs/delete(code=${frs.code})}" ><i class="fa fa-remove"></i></a>
+												<a id="btnEdit" class="btn-primary btn-sm text-light"  th:onclick="'openNavFormulaireUpdateFournisseur(\''+${frs.code}+'\')'"><i class="fa fa-edit"></i></a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+				           </div>
+							<div>
+					          	<ul class="pagination bg-dark">
+									<li th:each="pa,status:${pages}" class="nav-item">
+										<a 	th:class="${status.index}==${pageCourant}?'alert-info nav-link ':'nav-link '" 
+											th:href="@{fournisseurs(page=${status.index},size=${size},motCle=${motCle})}" th:text="${status.index}+1"></a>
+									</li>
+								</ul> 
+				           	</div>
+			         	</div>  
+		         	
+			         	<div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_FOURNISSEURS')" id="formulaireUpdateFournisseur" class="col-md-4" style="display:none"> 
+				          	<div class="card">
+					            <div class="card-header">
+					            	Mise à jour du fournisseur
+        					  		<a href="javascript:void(0)" class="closebtn" style="border:none; float:right" onclick="closeNavFormulaireUpdateFournisseur()">
+				  					<i class="fa fa-close"></i>
+				  					</a>
+					            </div>
+					            <div class="card-body"> 
+									<form method="post" th:action="@{/fournisseurs/update}" name="formulaireUpdateFournisseur">
+							       		<input th:value="${fournisseur.code}" type="hidden" name="code" class="form-control form-control-sm">
+										
+										<table class="table"> 
+										  <tbody>
+										  	<tr>
+										      <td><b>Référence</b></td>
+										      <td  th:text="${fournisseur.code}" id="codeFournisseurToUpdate">
+										       </td>
+										    	</tr>
+										    <tr>
+										    <tr>
+										      <td><b>Nom</b></td>
+										      <td>
+										        <input th:value="${fournisseur.nom}" type="text" name="nom" 
+										        class="form-control form-control-sm">
+										        <p th:errors="${fournisseur.nom}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Adresse</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${fournisseur.adresse}" type="text" name="adresse" 
+										        class="form-control form-control-sm">
+										        <p th:errors="${fournisseur.adresse}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Raison Sociale</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${fournisseur.raisonSociale}" type="text" name="raisonSociale" 
+										        class="form-control form-control-sm">
+										        <p th:errors="${fournisseur.raisonSociale}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Capital</b></td>
+										      <td>
+										      		<input th:value="${fournisseur.capital}" name="capital" type="text"  class="form-control form-control-sm"/> 
+										      		<p th:errors="${fournisseur.capital}" class="text-danger"></p>
+										      </td>
+										    </tr> 
+										    <tr>
+										      <td><b>E-mail</b></td>
+										      <td>
+										        <input th:value="${fournisseur.email}" type="text" name="email" 
+										        class="form-control form-control-sm">
+										        <p th:errors="${fournisseur.email}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Tel.</b></td>
+										      	<td>
+										        	<input name="tel" th:value="${fournisseur.tel}"  class="form-control form-control-sm"/>
+									        		<p th:errors="${fournisseur.tel}" class="text-danger"></p>
+									        	</td>
+										    </tr>
+										    <tr>
+										      <td><b>Fax.</b></td>
+										      	<td>
+										        	<input name="fax" th:value="${fournisseur.fax}"  class="form-control form-control-sm"/>
+									        		<p th:errors="${fournisseur.fax}" class="text-danger"></p>
+									        	</td>
+										    </tr>
+										    <tr>
+										      <td>&nbsp;</td>
+										      <td>
+										      <span th:if="${alert}" th:text="${alert}"></span>
+										      <br>
+										      	<a class="btn btn-light" onclick="closeNavFormulaireUpdateFournisseur()">Annuler</a>
+										        <button class="btn btn-primary" type="submit">Enregistrer</button>
+										      </td>
+										    </tr>
+										  </tbody>
+										</table>
+									</form>
+					            </div>
+							</div>
+				        </div>  
+					
+					</div> 
+				
+				</div>
+			</div> 
+	</div>
+ 	<div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_FOURNISSEURS')"> 
+		<script th:if="${addFailed}" > openNavFormulaireNouveauFournisseur(); </script> 
+		<script th:if="${updateFailed}" > openNavFormulaireUpdateFournisseur(); </script> 
+	</div>
+		  
+</div> 
+</body>
+</html>

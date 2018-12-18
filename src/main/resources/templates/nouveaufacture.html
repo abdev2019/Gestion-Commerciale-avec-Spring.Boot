@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	    layout:decorator="template"> 
+<head> 
+<meta charset="utf-8">
+<title>Nouveau facture</title>
+
+<script type="text/javascript"> 
+
+
+$(document).ready(function() {
+    $("#formNewReg").submit(function(e){  
+        e.preventDefault();  
+        var reg  = document.formNewReg.reglement.value;
+        var taux = document.formNewReg.taux.value; 
+        
+       	$.ajax({
+	        type: "POST",
+	        url: wwwpath+"/factures/reg/store",
+	        dataType: "json",
+	        data: { "reg": reg,
+	        		"taux": taux
+	        },
+	        success: function (result) 
+	        {  
+	        	if(result.ok == null){
+	        		var div = $("<div class='text-danger alert alert-danger'>").html(
+	        				"<p>"+(result.reg!=null?result.reg:"")+"</p><p>"+
+	   						(result.taux!=null?result.taux:"")+"</p>");
+	        		$("#errReg").html(div); 
+		        	return false;
+	        	}
+	        	
+	        	if( document.getElementById("tr_reg_"+reg)!=null )
+        		{ 
+	        		$($(document.getElementById("tr_reg_"+reg)).find("td")[1]).html(taux)
+	        		$("#errReg").html($("<div class='alert alert-success text-success'>").html(
+        				"<i class='fa fa-check'></i> Taux de reglement par "+result.nom+" modifié !")); 
+
+	        		return false;
+        		}
+	        	var rmv = "<a class='btn-danger btn-sm' onClick='removeReg(\""+reg+"\")'><i class='fa fa-minus'></i></a>";
+	        	var edt ="<a onClick='editReg(\""+reg+"\")' class='btn-primary btn-sm text-light' ><i class='fa fa-edit'></i></a>";
+	        	$("#lstRgls").append(
+	        			"<tr id='tr_reg_"+reg+"'> "+
+		        			"<td>"+result.nom+"</td> <td>"+result.taux+"</td>"+
+		        			"<td>"+rmv+edt+"</td> "+
+	        			"</tr>");  
+	        	$("#errReg").html($("<div class='alert alert-success text-success'>").html(
+	        			"<i class='fa fa-check'></i> "+result.ok)); 
+	        },
+	        error:function(xhr, status){
+	        	alert(xhr);
+	        }
+		});
+        return false; 
+	}); 
+});
+
+function removeReg(id)
+{
+	$.ajax({
+        type: "POST",
+        url: wwwpath+"/factures/reg/remove",
+        dataType: "json",
+        data: { reg: id }
+	});
+	$("#tr_reg_"+id).remove();
+}
+
+function editReg(id)
+{
+	var tds = $("#tr_reg_"+id).find("td"); 
+	$(document.formNewReg.reglement).val( id );
+	$(document.formNewReg.taux).val( $(tds[1]).html() );
+}
+ 
+
+
+
+
+$(document).ready(function() {
+    $("#formNewRed").submit(function(e){  
+        e.preventDefault();  
+        var red  = document.formNewRed.reduction.value;
+        var taux = document.formNewRed.taux.value; 
+        
+       	$.ajax({
+	        type: "POST",
+	        url: wwwpath+"/factures/red/store",
+	        dataType: "json",
+	        data: { "red": red,
+	        		"taux": taux
+	        },
+	        success: function (result) 
+	        {   
+	        	if(result.ok == null){
+	        		var div = $("<div class='text-danger alert alert-danger'>").html(
+        				"<p>"+(result.red!=null?result.red:"")+"<p/><p>"+
+   						(result.taux!=null?result.taux:"")+"<p/>"
+	        		);
+	        		$("#errRed").html(div); 
+		        	return false;
+	        	}
+	        	
+	        	if( document.getElementById("tr_red_"+red)!=null )
+        		{ 
+	        		$($(document.getElementById("tr_red_"+red)).find("td")[1]).html(taux)
+   			        $("#errRed").html($("<div class='alert alert-success text-success'>").html(
+  			        	"<i class='fa fa-check'></i> Taux de reduction "+result.nom+" modifié !"));
+
+	        		return false;
+        		}
+	        	
+	        	var rmv = "<a class='btn-danger btn-sm' onClick='removeRed(\""+red+"\")'><i class='fa fa-minus'></i></a>";
+	        	var edt ="<a onClick='editRed(\""+red+"\")' class='btn-primary btn-sm text-light' ><i class='fa fa-edit'></i></a>";
+	        	$("#lstReds").append(
+	        			"<tr id='tr_red_"+red+"'> "+
+		        			"<td>"+result.nom+"</td> <td>"+result.taux+"</td>"+
+		        			"<td>"+rmv+edt+"</td> "+
+	        			"</tr>");  
+	        	$("#errRed").html($("<div class='alert alert-success text-success'>").html(
+	        			"<i class='fa fa-check'></i> "+result.ok));
+	        },
+	        error:function(xhr, status){
+	        	alert(xhr);
+	        }
+		});
+        return false; 
+	}); 
+});
+
+function removeRed(id)
+{
+	$.ajax({
+        type: "POST",
+        url: wwwpath+"/factures/red/remove",
+        dataType: "json",
+        data: { red: id }
+	});
+	$("#tr_red_"+id).remove();
+}
+
+function editRed(id)
+{ 
+	var tds = $("#tr_red_"+id).find("td"); 
+	$(document.formNewRed.reduction).val( id );
+	$(document.formNewRed.taux).val( $(tds[1]).html() );
+}
+ 
+ 
+
+function showActor(i)
+{
+	if(i==2){ 
+		$("#trClient").show(); 
+		$("#trFournisseur").hide(); 
+		$("#label1").addClass("btn-info");
+		$("#label1").removeClass("btn-primary");
+		$("#label2").removeClass("btn-info");
+		$("#label2").addClass("btn-primary"); 
+	}
+	else{ 
+		$("#trClient").hide();
+		$("#trFournisseur").show(); 
+		$("#label2").addClass("btn-info");
+		$("#label2").removeClass("btn-primary");
+		$("#label1").removeClass("btn-info");
+		$("#label1").addClass("btn-primary");
+	}
+}
+
+
+function addLigne(){ 
+        var ref = $("#refPrd").val();
+        var nom = $("#refPrd option[value="+ref+"]").text();
+        var qte = $("#qtePrd").val();
+        var prx = $("#prix").val();
+
+       	$.ajax({
+	        type: "POST",
+	        url: wwwpath+"/factures/ligne/store",
+	        dataType: "json",
+	        data: { "refProduit": ref,
+	        	"qte": qte, 
+	        	"prix":prx
+	        },
+	        success: function (result) 
+	        {  
+	        	if(result.ok == null)
+	        	{
+	        		var div = $("<div class='text-danger alert alert-danger p-2'>")
+	        			.html("<p>"+(result.produit!=null?result.produit:"")+"</p><p>"+
+	       						(result.prix!=null?result.prix:"")+"</p>"+
+	       						(result.qte!=null?result.qte:"")+"</p>"
+   						);
+	        		$("#errLf").html( div );  
+		        	return false;
+	        	}
+	        	$("tr").removeClass("alert-primary"); 
+	        	if( document.getElementById("tr_"+ref)!=null )
+        		{
+	        		$("#errLf").html(
+        				$("<div class='alert alert-success text-primary'>")
+        				.html("<i class='fa fa-check'></i> Quantité du produit "+nom+" modifié !")
+       				); 
+       				$("#tr_"+ref).addClass("alert-primary");
+	        		$($(document.getElementById("tr_"+ref)).find("td")[2]).html(qte)
+	        		return false;
+        		}
+	        	var rmv = "<a class='btn btn-danger btn-sm' onClick='removeLigne(\""+ref+"\")'><i class='fa fa-minus'></i></a>";
+	        	var edt ="<a onClick='editLigne(\""+ref+"\")' class='btn btn-primary btn-sm text-light' ><i class='fa fa-edit'></i></a>";
+	        	$("#tableLcs").append(
+	        			"<tr id='tr_"+ref+"'> "+
+		        			"<td>"+nom+"</td> <td>"+prx+"</td><td>"+qte+"</td>"+
+		        			"<td>"+result.total+"</td>"+
+		        			"<td>"+result.tva+"</td>"+
+		        			"<td>"+result.ttc+"</td>"+
+		        			"<td>"+rmv+edt+"</td> "+
+	        			"</tr>"); 
+	        	$("#errLf").html($("<div class='alert alert-success text-success'>").html(
+	        		"<i class='fa fa-check'></i> "+result.ok)); 
+	        	$("#tr_"+ref).addClass("alert-primary");
+	        },
+	        error:function(xhr, status){
+	        	alert(xhr.message);
+	        }
+		}); 
+}
+
+function removeLigne(reff)
+{
+	$.ajax({
+        type: "POST",
+        url: wwwpath+"/factures/ligne/remove",
+        dataType: "json",
+        data: { ref: reff }
+	});
+	$("#tr_"+reff).remove();
+}
+
+function editLigne(ref)
+{
+	$("tr").removeClass("alert-primary");
+	$("#tr_"+ref).addClass("alert-primary");
+	var tds = $("#tr_"+ref).find("td");
+	$(document.formStoreLc.qte).val( $(tds[2]).html() );
+	$(document.formStoreLc.prix).val( $(tds[1]).html() );
+	$(document.formStoreLc.produit).val( ref );
+}
+
+function getProduit(ref)
+{
+	$.ajax({
+        type: "POST",
+        url: wwwpath+"/produits/get",
+        dataType: "json",
+        data: { "ref": ref },
+        success: function (produit) {  
+        	$("#prix").val(produit.prix); 
+        },
+        error:function(xhr, status){
+        	alert(xhr.message);
+        }
+	});
+}
+</script> 
+</head>
+
+<body>
+<div layout:fragment="body" >  
+									<form method="post" name="fnc" th:action="@{/factures/save}"> 
+
+		 	<script type="text/javascript">
+		 		$("#page").append('Factures');
+		 	</script>
+		 	
+		 	<script  th:if="${edit}" th:inline='javascript' type="text/javascript">
+	 			$("#page").parent().after('<li><a href="#">Mise à jour</a></li>');
+		 		$("#page").parent().after('<li><a href="#">Facture &numero;'+[[${facture.numero}]]+'</a></li>');
+	 		</script>
+	 		
+	 		<script  th:if="!${edit}"   type="text/javascript">
+		 		$("#page").parent().after('<li><a href="#">Nouveau</a></li>');
+	 		</script>
+		 		
+			
+			<div class="card">
+				<div class="card-header mb-4" >
+					<span th:if="${edit}">Mis à jour</span> 
+					<span th:if="!${edit}">Nouveau facture</span>  
+				</div>
+				
+				<div class="card-body" >
+				
+					<div class="alert-warning text-success" th:if="${updateOk}" th:text="${updateOk}"></div>
+					<div class="alert-warning text-primary" th:if="${addOk}" th:text="${addOk}"></div>
+					<div class="alert-warning text-danger" th:if="${deleteOk}" th:text="${deleteOk}"></div>
+ 
+					<div  class=""> 
+		         	<div class="row">
+			         	
+			         	<div class="col-md-4" style="padding-left:0" id="formulaireNouveauFacture"  >
+					 
+				          	<div class=""> 
+					            <div class=""> 
+					            	
+									<div th:if="${errs}" class="alert alert-danger p-2">
+										<p th:each="err:${errs}" th:text="${err}"></p>
+									</div>
+										<input name="numCmd" type="hidden" th:if="${cmd}" th:value="${cmd.numero}">
+										<input th:if="${edit}" type="hidden" name="operation" value="1" />
+										<input th:if="${edit}" type="hidden" name="numero" th:value="${facture.numero}" />
+										<table class="table"> 
+										  <tbody> 
+										  	<tr th:if="${facture.numero}">
+										      <th>Numéro</th>
+										      <td>
+										        <span th:text="${facture.numero}"></span>
+										    </tr> 
+										  	<tr>
+										      <td><b>Date</b><br></td>
+										      <td>
+										        <input th:value="${facture.dateFacture}?${#dates.format(facture.dateFacture, 'yyyy-MM-dd')}" 
+										        type="date" name="dateFacture" class="form-control">
+										    </tr> 
+										    <tr  th:if="${clients} and ${fournisseurs}">
+										    	<td></td>
+										    	<td>
+										    		<label class="btn btn-sm btn-info" id="label2"><input name="typeFacture" type="radio" onclick="showActor(2)" checked/> Vente</label> 
+										    		<label class="btn btn-sm btn-info" id="label1"><input name="typeFacture" type="radio" onclick="showActor(1)" /> Achat</label>
+										    	</td>
+										    </tr>
+										    <tr id="trClient" th:if="${clients}" >
+										      <td><b>Client</b> </td>
+										      	<td>
+											      	<select name="client" class="custom-select">
+											      		<option  value="null">-</option>
+											      		<option th:each="client:${clients}" th:value="${client.code}" th:text="${client.code}+' ('+${client.nom}+' '+${client.prenom}+')'"></option>
+											      	</select> 
+									        	</td>
+										    </tr>
+										    
+										    <tr  th:if="${fournisseurs}" id="trFournisseur"  >
+										      <td><b>Fournisseur</b> </td>
+										      	<td>
+											      	<select id="fournisseur" name="fournisseur" class="custom-select">
+											      		<option value="null">-</option>
+											      		<option th:each="fournisseur:${fournisseurs}" th:value="${fournisseur.code}" th:text="${fournisseur.code}+' ('+${fournisseur.nom}+')'"></option>
+											      	</select> 
+									        	</td>
+										    </tr>
+										     
+										    <tr>
+										      <td>&nbsp</td>
+										      <td>
+										      <span th:if="${alert}" th:text="${alert}"></span>
+										      <br> 
+										        <button class="btn btn-success" type="submit">Enregistrer</button>
+										      </td>
+										    </tr>
+										  </tbody>
+										</table>
+		     
+		     							<script>document.fnc.typeFacture[0].checked=true; showActor(2);</script>
+		     							
+		     							<!-- Commande -->
+								      	<span  th:if="${cmd} and ${cmd.fournisseur}">
+									      	<input type="hidden" name="idfrs" th:value="${cmd.fournisseur.code}">
+									      	<script th:text="'document.fnc.fournisseur.value=document.fnc.idfrs.value;'"></script>
+									      	<script>document.fnc.typeFacture[1].checked=true; showActor(1);</script>
+							      		</span>
+							      		<span th:if="${cmd} and ${cmd.client}">
+								      		<input type="hidden" name="idclt" th:value="${cmd.client.code}">
+									      	<script th:text="'document.fnc.client.value=document.fnc.idclt.value;'"></script>
+									      	<script>document.fnc.typeFacture[0].checked=true; showActor(2);</script>
+								      	</span>
+								      	
+								      	<!-- Facture -->
+								      	<span  th:if="${facture} and ${facture.fournisseur}">
+									      	<input type="hidden" name="idfrs" th:value="${facture.fournisseur.code}">
+									      	<script th:text="'document.fnc.fournisseur.value=document.fnc.idfrs.value;'"></script>
+									      	<script>document.fnc.typeFacture[1].checked=true; showActor(1);</script>
+							      		</span>
+							      		<span th:if="${facture} and ${facture.client}">
+								      		<input type="hidden" name="idclt" th:value="${facture.client.code}">
+									      	<script th:text="'document.fnc.client.value=document.fnc.idclt.value;'"></script>
+									      	<script>document.fnc.typeFacture[0].checked=true; showActor(2);</script>
+								      	</span>  
+								      	
+					            </div>
+							</div>
+				        </div> 
+				
+			         	
+			         	<div class=" col p-0" id="listeLignes"> 
+									<div class="card-header text-left">
+										Produits commandés
+									</div>  
+			         			<form name="formStoreLc" id="formStoreLc" method="post" 
+			         				th:action="@{/factures/ligne/store}">
+			         			<input type="hidden" name="facture" th:value="${facture.numero}" />
+			         			
+			         			<div th:if="${exception}" th:text="${exception.message}" class="alert-danger"></div> 
+					        	<div th:if="${addLcOk}" th:text="${addLcOk}" class="alert-success"></div>
+			         			<div id="errLf"></div> 
+			         			
+			         			<table class="table">  
+										<tr>  
+											<td> 
+												<select onchange="getProduit(this.value);" name="produit" id="refPrd" class="custom-select">
+													<option value="0" >Selectionner un produit...</option>
+													<option th:each="produit:${produits}" 
+															th:value="${produit.ref}" 
+															th:text="${produit.designation}"  ></option>
+												</select>
+											</td>   
+											<td>
+												<div  class="input-group">
+												<input placeholder="prix" name="prix" id="prix"  class="form-control">
+												<div class="input-group-append">
+													<span  class="input-group-text">MAD</span>
+												</div>
+												</div>
+											</td>
+											<td> <input placeholder="Quantité" name="qte" id="qtePrd" class="form-control" /> </td>  
+											<td>
+												<button type="button" onclick="addLigne();" class="btn btn-primary btn-sm text-light"><i class="fa fa-check"></i></button>
+											</td>
+										</tr> 
+								</table>
+								</form> 
+			         		<br> 
+			         		
+					        <div th:if="${deleteLcOk}" th:text="${deleteLcOk}" class="alert-warning"></div>
+					        <div th:if="${updateLcOk}" th:text="${updateLcOk}" class="alert-success"></div>
+			         		
+							<div  style="overflow-y:scroll;max-height:500px">
+					           <table class="table table-hover">
+									<thead>
+										<tr>  
+											<th>Produit</th>
+											<th>Prix</th> 
+											<th>Quantité</th> 
+											<th>Total</th> 
+											<th>TVA</th> 
+											<th>TTC</th> 
+											<th></th> 
+										</tr>
+									</thead>
+									<tbody id="tableLcs">
+										<tr th:each="lf:${lfs}" th:id="'tr_'+${lf.produit.ref}">  
+											<td th:text="${lf.produit.designation}"></td>
+											<td th:text="${lf.prix}"></td> 
+											<td th:text="${lf.qte}"></td>  
+											<td th:text="${lf.total}"></td> 
+											<td th:text="${lf.produit.tva}"></td>  
+											<td th:text="${lf.ttc}"></td>  
+											<td>
+												<a class='btn btn-danger btn-sm' th:onClick="'removeLigne(\''+${lf.produit.ref}+'\')'"><i class='fa fa-minus text-light'></i></a> 
+												<a th:onclick="'editLigne(\''+${lf.produit.ref}+'\')'" class="btn btn-primary btn-sm text-light" ><i class="fa fa-edit"></i></a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+				           </div>
+				           
+				           	<div class="row">
+								<div class="col card mt-4 p-0"> 
+									<div class="card-header  btn text-left"
+										 data-toggle="collapse" data-target="#cardReglements">
+										Reglements  
+									</div>
+							        <div class="card-body collapse show" id="cardReglements" >
+							        	<div id="errReg"></div>
+						        		<form name="formNewReg" id="formNewReg">
+							        	<table class="table">
+							        		<tr>
+							        			<td>
+							        				<select name="reglement" class="custom-select custom-select-sm">
+							        					 <option value="0">---</option>
+							        					 <option th:each="reg:${regs}" th:value="${reg.id}" 
+							        					 	th:text="${reg.type}"></option>
+							        				</select>
+							        			</td>
+							        			<td>
+							        				<input class="form-control form-control-sm" placeholder="Taux" name="taux" type="number" />
+							        			</td><!--
+							        			<td>
+							        				<input class="form-control form-control-sm" name="raison" placeholder="Raison..." />
+							        			</td>  -->
+							        			<td>
+							        				<button class="btn btn-primary btn-sm text-light float-right">
+							        					<i class="fa fa-check"></i>
+						        					</button>
+							        			</td>
+							        		</tr>
+							        	</table>
+							        	</form> 
+							        	
+										<div  style="overflow-y:scroll;max-height:500px">
+								           <table class="table table-hover">
+												<thead>
+													<tr>  
+														<th>Type</th>
+														<th>Taux(%)</th> 
+														<th></th>  
+													</tr>
+												</thead>
+												<tbody id="lstRgls">
+													<tr th:each="rgf:${regsf}" th:id="'tr_reg_'+${rgf.reglement.id}">  
+														<td th:text="${rgf.reglement.type}"></td>
+														<td th:text="${rgf.percentage}"></td> 
+														<td> 
+												        	<a th:onClick="'removeReg('+${rgf.reglement.id}+')'" class='btn-danger btn-sm'>
+												        		<i class='fa fa-minus'></i>
+											        		</a>
+												        	<a th:onClick="'editReg('+${rgf.reglement.id}+')'" class='btn-primary btn-sm text-light' >
+												        		<i class='fa fa-edit'></i>
+											        		</a>
+														</td> 
+													</tr>
+												</tbody>
+											</table>
+							           </div>
+							        </div>
+							    </div> 
+							    
+							    <div class="p-3"></div>
+							    
+							    <div class="card mt-4 col p-0"> 
+									<div class="card-header btn text-left"  data-toggle="collapse" data-target="#cardReductions">
+										Reductions 
+									</div>
+							        <div class="card-body collapse show" id="cardReductions">
+									
+										<div class="text-danger" id="errRed"></div>
+							        	<form name="formNewRed" id="formNewRed">
+							        	<table class="table">
+							        		<tr>
+							        			<td>
+							        				<select name="reduction" class="custom-select custom-select-sm">
+							        					 <option value="0">---</option>
+							        					 <option th:each="red:${reds}" th:value="${red.id}" 
+							        					 	th:text="${red.type}"></option>
+							        				</select>
+							        			</td>
+							        			<td>
+							        				<input class="form-control form-control-sm" placeholder="Taux" name="taux" type="number" />
+							        			</td><!--
+							        			<td>
+							        				<input class="form-control form-control-sm" name="raison" placeholder="Raison..." />
+							        			</td>  -->
+							        			<td>
+							        				<button class="btn btn-primary btn-sm text-light float-right">
+							        					<i class="fa fa-check"></i>
+						        					</button>
+							        			</td>
+							        		</tr>
+							        	</table>
+							        	</form>
+							        	
+										<div  style="overflow-y:scroll;max-height:500px">
+								           <table class="table table-hover">
+												<thead>
+													<tr>  
+														<th>Reduction</th>
+														<th>Taux(%)</th>  
+														<th></th>  
+													</tr>
+												</thead>
+												<tbody id="lstReds">
+													<tr th:each="rdf:${redsf}" th:id="'tr_red_'+${rdf.reduction.id}">    
+														<td th:text="${rdf.reduction.type}"></td>
+														<td th:text="${rdf.taux}"></td> 
+														<td> 
+												        	<a th:onClick="'removeRed('+${rdf.reduction.id}+')'" class='btn-danger btn-sm'>
+												        		<i class='fa fa-minus'></i>
+											        		</a>
+												        	<a th:onClick="'editRed('+${rdf.reduction.id}+')'" class='btn-primary btn-sm text-light' >
+												        		<i class='fa fa-edit'></i>
+											        		</a>
+														</td>  
+													</tr>
+												</tbody>
+											</table>
+							           </div>
+							        </div>
+							    </div>
+							</div> 
+							
+							<div class="mt-5 mb-5">  
+									<div class="card-header">
+										Livraison  
+									</div>
+							        <div class="card-body" >
+							      		<table class="table">
+							      		<tbody>
+							        	 	<tr>
+										      <td><b>Date livraison :</b><br></td>
+										      <td>
+										        <input 
+										        	th:value="${facture.livraison} and ${facture.livraison.dateLivraison}?${#dates.format(facture.livraison.dateLivraison, 'yyyy-MM-dd')}" 
+										        type="date" name="dateLivraison" class="form-control">
+									    	</tr>
+									    	<tr>
+										      <td><b>Adresse de livraison :</b><br></td>
+										      <td>
+										        <input name="adresseLivraison" class="form-control" 
+										        	th:value="${facture.livraison}?${facture.livraison.adresse}">
+									    	</tr>
+									    </tbody>
+								    	</table>
+							        </div>
+							    </div> 
+							    
+							
+			         	</div> 
+					</div>  		
+					</div>
+				
+				</div>
+			</div>  
+			
+									</form>
+</div>  
+
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	    layout:decorator="template"> 
+<head> 
+<meta charset="utf-8">
+<title>Nouveau commande</title>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $("#formStoreLc").submit(function(e){  
+        e.preventDefault();
+        var ref = document.formStoreLc.produit.value;
+        var nom = $("#formStoreLc option[value="+ref+"]").text();
+        var qte = document.formStoreLc.qte.value;
+        var prx = document.formStoreLc.prix.value;
+       	$.ajax({
+	        type: "POST",
+	        url: wwwpath+"/commandes/ligne/store",
+	        dataType: "json",
+	        data: { "refProduit": ref,
+	        	"qte": qte
+	        },
+	        success: function (result) 
+	        {  
+	        	if(result.qte==null)
+        		{
+	        		$("#alert").html("Quantité du produit doit etre au minumim 1");
+	        		return false;
+        		}
+	        	else if(result.produit==null)
+        		{
+	        		$("#alert").html("Vous devez selectionner un produit !");
+	        		return false;
+        		}
+	        	if( document.getElementById("tr_"+ref)!=null )
+        		{
+	        		$("#alert").html("Quantité du produit "+nom+" modifié !");
+	        		$($(document.getElementById("tr_"+ref)).find("td")[2]).html(qte)
+	        		return false;
+        		}
+	        	var rmv = "<a class='btn btn-danger btn-sm' onClick='removeLigne(\""+ref+"\")'><i class='fa fa-minus'></i></a>";
+	        	var edt ="<a onClick='editLigne(\""+ref+"\")' class='btn btn-primary btn-sm text-light' ><i class='fa fa-edit'></i></a>";
+	        	$("#tableLcs").append(
+	        			"<tr id='tr_"+ref+"'> "+
+		        			"<td>"+nom+"</td> <td>"+prx+"</td><td>"+qte+"</td>"+
+		        			"<td>"+rmv+edt+"</td> "+
+	        			"</tr>"); 
+	        	$("#alert").html(qte+" produits "+nom+" ajoutés !");
+	        },
+	        error:function(xhr, status){
+	        	alert(xhr.message);
+	        }
+		});
+        return false; 
+	}); 
+});
+
+function removeLigne(reff)
+{
+	$.ajax({
+        type: "POST",
+        url: wwwpath+"/commandes/ligne/remove",
+        dataType: "json",
+        data: { ref: reff }
+	});
+	$("#tr_"+reff).remove();
+}
+
+function editLigne(ref)
+{
+	var tds = $("#tr_"+ref).find("td");
+	$(document.formStoreLc.qte).val( $(tds[2]).html() );
+	$(document.formStoreLc.prix).val( $(tds[1]).html() );
+	$(document.formStoreLc.produit).val( ref );
+}
+
+function getProduit(ref)
+{
+	$.ajax({
+        type: "POST",
+        url: wwwpath+"/produits/get",
+        dataType: "json",
+        data: { "ref": ref },
+        success: function (produit) {  
+        	$("#prix").val(produit.prix); 
+        	$("#stock").val(produit.quantite);  
+        },
+        error:function(xhr, status){
+        	alert(xhr.message);
+        }
+	});
+}
+function showActor(i)
+{
+	if(i==2){ 
+		$("#trClient").show(); 
+		$("#trFournisseur").hide(); 
+		$("#label1").addClass("btn-info");
+		$("#label1").removeClass("btn-primary");
+		$("#label2").removeClass("btn-info");
+		$("#label2").addClass("btn-primary"); 
+	}
+	else{ 
+		$("#trClient").hide();
+		$("#trFournisseur").show(); 
+		$("#label1").addClass("btn-info");
+		$("#label1").removeClass("btn-primary");
+		$("#label2").removeClass("btn-info");
+		$("#label2").addClass("btn-primary");
+	}
+}
+</script> 
+</head>
+
+<body>
+<div layout:fragment="body"  class="col">  
+	 <script type="text/javascript">
+	 	$("#page").append(' Commandes ');
+	 	$("#page").parent().after(' <li><a href="#">Nouveau</a></li>  ');
+	 </script>
+			<div class="card mt-2" style="border:none"> 
+				<div class="card-body p-3" >
+				<span class="h4">Nouveau commande</span><br><br><br>
+				
+					<div class="alert-warning text-success" th:if="${updateOk}" th:text="${updateOk}"></div>
+					<div class="alert-warning text-primary" th:if="${addOk}" th:text="${addOk}"></div>
+					<div class="alert-warning text-danger" th:if="${deleteOk}" th:text="${deleteOk}"></div>
+
+					<div  class=""> 
+		         	<div class="row">
+			         	
+			         	<div class="col-md-4" style="padding-left:0" id="formulaireNouveauCommande"  >
+					 
+				          	<div class="card"> 
+					            <div class="card-body"> 
+									<form method="post" th:action="@{/commandes/add}">
+									<div th:if="${addField}" th:text="${addField}" class="alert-danger"></div>
+										<table class="table"> 
+										  <tbody> 
+										  	<tr>
+										      <td><b>Date</b></td>
+										      <td>
+										        <input th:value="${commande.dateCommande}" type="date" name="dateCommande" 
+										        class="form-control">
+										        <p th:errors="${commande.dateCommande}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Validé</b>
+										        <br> </td>
+										      <td>
+										        <select name="valide" 
+	        										th:class="${commande.valide}?'custom-select alert-success':'custom-select alert-dark'">
+										        	<option value="true" class="alert-success" th:selected="${commande.valide}?'true':'false'">OUI</option>
+										        	<option value="false" class="alert-dark"  th:selected="${commande.valide}?'false':'true'">NON</option>
+										        </select>
+										        <p th:errors="${commande.valide}" class="text-danger"></p></td>
+										    </tr>
+										    <tr  th:if="${clients} and ${fournisseurs}">
+										    	<td></td>
+										    	<td>
+										    		<label class="btn btn-sm btn-info" id="label2"><input name="typeCommande" type="radio" onclick="showActor(2)" checked/> Vente</label> 
+										    		<label class="btn btn-sm btn-info" id="label1"><input name="typeCommande" type="radio" onclick="showActor(1)" /> Achat</label>
+										    		<p th:if="${errDest}" th:text="${errDest}" class="text-danger"></p>
+										    	</td>
+										    	<script type="text/javascript">$(document).ready(function(){$("#trFournisseur").hide();});</script>
+										    </tr>
+										    <tr id="trClient" th:if="${clients}" >
+										      <td><b>Client</b> </td>
+										      	<td>
+											      	<select name="client" class="custom-select">
+											      		<option  value="null">-</option>
+											      		<option th:if="${commande.client}" th:value="${commande.client.code}" th:text="${commande.client.code}+' ('+${commande.client.nom}+' '+${commande.client.prenom}+')'" selected></option>
+											      		<option th:each="client:${clients}" th:value="${client.code}" th:text="${client.code}+' ('+${client.nom}+' '+${client.prenom}+')'"></option>
+											      	</select> 
+											        <p th:errors="${commande.client}" class="text-danger"></p>
+									        	</td>
+										    </tr>
+										    
+										    <tr  th:if="${fournisseurs}" id="trFournisseur"  >
+										      <td><b>Fournisseur</b> </td>
+										      	<td>
+											      	<select name="fournisseur" class="custom-select">
+											      		<option value="null">-</option>
+											      		<option th:if="${commande.fournisseur}" th:value="${commande.fournisseur.code}" th:text="${commande.fournisseur.code}+' ('+${commande.fournisseur.nom}+')'" selected></option>
+											      		<option th:each="fournisseur:${fournisseurs}" th:value="${fournisseur.code}" th:text="${fournisseur.code}+' ('+${fournisseur.nom}+')'"></option>
+											      	</select> 
+											        <p th:errors="${commande.fournisseur}" class="text-danger"></p>
+									        	</td>
+										    </tr>
+										     
+										    <tr>
+										      <td>&nbsp;</td>
+										      <td>
+										      <span th:if="${alert}" th:text="${alert}"></span>
+										      <br> 
+										        <button class="btn btn-success" type="submit">Enregistrer</button>
+										      </td>
+										    </tr>
+										  </tbody>
+										</table>
+									</form>
+					            </div>
+							</div>
+				        </div>  
+				
+			         	
+			         	<div class="card col p-0" id="listeLignes"> 
+									<div class="card-header text-left">
+										Produits
+									</div>
+			         			<form name="formStoreLc" id="formStoreLc" method="post" 
+			         				  th:action="@{/commandes/ligne/store}">
+			         			<input type="hidden" name="commande" th:value="${commande.numero}" />
+			         			 
+					        	<div th:if="${addLcOk}" th:text="${addLcOk}" class="alert-success"></div>
+			         			<div class="alert-info" id="alert"></div>
+			         			<p th:if="${errLcs}" th:text="${errLcs}" class="text-danger"></p>
+			         			
+			         			<table class="table">  
+										<tr>  
+											<td> 
+												<select onchange="getProduit(this.value);" name="produit" class="custom-select">
+													<option value="0" >Selectionner un produit...</option>
+													<option th:each="produit:${produits}" 
+															th:value="${produit.ref}" 
+															th:text="${produit.designation}"  ></option>
+												</select>
+											</td>   
+											<td>
+												<div  class="input-group">
+												<input placeholder="prix" name="prix" id="prix" class="form-control" readonly="1">
+												<div class="input-group-append">
+													<span  class="input-group-text">MAD</span>
+												</div>
+												</div>
+											</td>
+											<td>
+ 												<input placeholder="Quantité en stock" id="stock" class="form-control" readonly="1"> 
+											</td>
+											<td> <input placeholder="Quantité" name="qte" class="form-control" /> </td>  
+											<td>
+												<button class="btn btn-primary btn-sm text-light"><i class="fa fa-check"></i></button>
+											</td>
+										</tr> 
+								</table>
+								</form> 
+			         		<br> 
+			         		
+					        <div th:if="${deleteLcOk}" th:text="${deleteLcOk}" class="alert-warning"></div>
+					        <div th:if="${updateLcOk}" th:text="${updateLcOk}" class="alert-success"></div>
+			         		
+							<div  style="overflow-y:scroll;max-height:500px">
+					           <table class="table table-hover">
+									<thead>
+										<tr>  
+											<th>Produit</th>
+											<th>Prix unitaire</th> 
+											<th>Quantité</th> 
+											<th></th> 
+										</tr>
+									</thead>
+									<tbody id="tableLcs">
+										<tr th:each="ligne:${lcs}" th:id="'tr_'+${ligne.produit.ref}">  
+											<td th:text="${ligne.produit.designation}"></td>
+											<td th:text="${ligne.produit.prix}"></td> 
+											<td th:text="${ligne.qte}"></td>  
+											<td>
+												<a class='btn btn-danger btn-sm' th:onClick="'removeLigne(\''+${ligne.produit.ref}+'\')'"><i class='fa fa-minus'></i></a>
+												<a th:onclick="'editLigne(\''+${ligne.produit.ref}+'\')'" class="btn btn-primary btn-sm text-light" ><i class="fa fa-edit"></i></a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+				           </div>
+							<div>
+					          	<ul class="pagination bg-dark" style="border-radius:0">
+									<li th:each="pa,status:${pages}" class="nav-item">
+										<a 	th:class="${status.index}==${pageCourant}?'active nav-link ':'nav-link '" 
+											th:href="@{/commandes/get(numero=${commande.numero}, page=${status.index},size=${size},motCle=${motCle})}" th:text="${status.index}+1"></a>
+									</li>
+								</ul> 
+				           	</div>
+			         	</div>  
+					</div> 
+					</div>
+				
+				</div>
+			</div>  
+</div>  
+
+</body>
+</html>

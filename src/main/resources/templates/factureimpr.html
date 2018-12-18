@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		 >   
+		 <head>
+		 	<meta charset="utf-8" />  
+	 		<link th:if="${url}" rel="stylesheet" th:href="${url}+'/css/bootstrap.css'" type="text/css" /> 
+			<style type="text/css">
+				.table  td , .table th{border:none; padding:0; text-align: left}
+				#table td, #table td{ border-bottom:solid 0.01em rgb(200,200,255); padding:5px; 
+					text-align: left 
+				}
+				#table{ border:solid 0.01em rgb(200,200,255) }
+			</style>
+		</head>
+<body >   	    
+					 
+	<table class="table mt-4" >
+	
+		<tr>
+			<td class="border-top border-primary  border-bottom border-left p-3"> 
+				<img style="width:150px" th:if="${url}" alt="" th:src="${url}+'/img/1.png'" />
+			</td>
+			<td  class="border-top border-primary  border-bottom" style="width:20%">&nbsp;</td>
+			<td  class="border-top border-bottom border-primary border-right  p-3">
+				<table> 
+	            	<tr>
+	            		<th class="h4">Facture &numero;</th><td  class="h4">&nbsp;:&nbsp;</td>
+	            		<td  class="h4" th:text="${facture.numero}" ></td> 
+	           		</tr>
+	           		
+	           		<tr>
+						<th>Date&nbsp;</th><td>&nbsp;:&nbsp;</td>  
+						<td  th:text="${facture.dateFacture}?${#dates.format(facture.dateFacture, 'dd-MM-yyyy')}"></td> 
+					</tr>  
+				</table>
+			</td> 
+		</tr>
+		<tr><td   class="mb-5 pb-5"></td></tr> 
+		<tr>
+ 			<td>   
+ 				<div th:if="${facture.fournisseur}">   
+	            	<table>
+	            		<tr> 
+	            			<td>Fournisseur </td><td>&nbsp;:&nbsp;</td>
+	            			<td th:text="${facture.fournisseur.nom}"></td> 
+	           			</tr>  
+	            		<tr> 
+	            			<td>Ref. </td> <td>&nbsp;:&nbsp;</td>
+	            			<td th:text="${facture.fournisseur.code}"></td> 
+	           			</tr>
+	           			<tr> 
+	            			<td>Adresse </td> <td>&nbsp;:&nbsp;</td>
+	            			<td th:text="${facture.fournisseur.adresse}"></td> 
+	           			</tr>
+	           			<tr> 
+	            			<td>Tél. </td> <td>&nbsp;:&nbsp;</td>
+	            			<td th:text="${facture.fournisseur.tel}"></td> 
+	           			</tr> 
+	           			<tr> 
+	            			<td>Fax </td> <td>&nbsp;:&nbsp;</td>
+	            			<td th:text="${facture.fournisseur.fax}"></td> 
+	           			</tr> 
+	            	</table>
+	            </div>
+	           	<table  th:if="!${facture.fournisseur}">
+	           		<tr>
+	           			<td th:text="${maSociete.nom}"></td>
+	           		</tr>
+	           		<tr>
+	           			<td th:text="${maSociete.adresse}"></td>
+	           		</tr>
+	           		<tr>
+	           			<td>Tel. : <span  th:text="${maSociete.tel}"></span></td>
+	           		</tr>
+	           		<tr>
+	           			<td>Fax : <span  th:text="${maSociete.fax}"></span></td>
+	           		</tr>
+	           	</table>
+        	</td> 
+        	<td>&nbsp;</td> 
+       		<td>  
+            	<table  th:if="${facture.fournisseur}">
+	           		<tr>
+	           			<td th:text="${maSociete.nom}"></td>
+	           		</tr>
+	           		<tr>
+	           			<td th:text="${maSociete.adresse}"></td>
+	           		</tr>
+	           		<tr>
+	           			<td>Tel. : <span  th:text="${maSociete.tel}"></span></td>
+	           		</tr>
+	           		<tr>
+	           			<td>Fax : <span  th:text="${maSociete.fax}"></span></td>
+	           		</tr>
+	           	</table>
+	           	
+       			<div th:if="${facture.client}">  
+	            	<table class="table">
+	            		<tr> 
+	            			<td colspan="3">
+	            				Client N<span th:text="${facture.client.code}"></span><br>
+	            				<span th:text="${facture.client.prenom}+' '+${facture.client.nom}"></span>
+	            			</td>   
+	           			</tr>  
+	           			<tr> 
+	            			<td>Adresse </td> <td> : &nbsp;</td>
+	            			<td th:text="${facture.client.adresse}"></td> 
+	           			</tr> 
+	           			<tr> 
+	            			<td>E-mail </td><td> : &nbsp;</td>
+	            			<td th:text="${facture.client.email}"></td> 
+	           			</tr>
+	           			<tr> 
+	            			<td>Tél. </td> <td> : &nbsp;</td>
+	            			<td th:text="${facture.client.tel}"></td> 
+	           			</tr> 
+	            	</table>
+            	</div>
+        	</td>
+        </tr>
+	</table>  
+	
+	
+          <table id="table" class="table table-hover mt-5 pt-5"  >
+			<thead>
+				<tr>  
+					<th>Produit</th>
+					<th>Prix unitaire</th> 
+					<th>Quantité</th>  
+					<th>Total</th>  
+					<th>TVA(%)</th> 
+					<th>TTC</th> 
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="ligne:${facture.lignesFacture}">  
+					<td th:text="${ligne.produit.designation}"></td>
+					<td th:text="${#numbers.formatDecimal(ligne.prix, 0, 'DEFAULT', 2, 'DEFAULT')}"></td>  
+					<td th:text="${ligne.qte}"></td> 
+					<td th:text="${#numbers.formatDecimal(ligne.total, 0, 'DEFAULT', 2, 'DEFAULT')}"></td> 
+					<td th:text="${ligne.produit.tva}"></td>
+					<td th:text="${#numbers.formatDecimal(ligne.ttc, 0, 'DEFAULT', 2, 'DEFAULT')}"></td> 
+				</tr>
+				<tr>  
+					<td colspan="6" style="text-align: right">
+						<span class="h4 text-primary" th:text="'Total TTC: '+ ${#numbers.formatDecimal(facture.ttc, 0, 'DEFAULT', 2, 'DEFAULT')}+' MAD'"></span>
+					
+					</td>  
+				</tr>
+			</tbody>
+		</table>  
+		
+		<table class="table mt-3" th:if="${facture.livraison}">
+		<tr>
+			<td style="width:50%">&nbsp</td>
+			<td align=right class="border border-primary"> 
+				<div th:text="'Adresse de livraison : '+${facture.livraison.adresse}"></div>
+				<div th:text="'Le '+(${facture.livraison.dateLivraison}?${#dates.format(facture.livraison.dateLivraison, 'dd-MM-yyyy')})"></div>
+			</td>
+		</tr>
+		</table>
+		
+		<div class="mt-3 h5">
+			<div>
+				Reglement du facture : <br>
+				<table class="table"> 
+					<tbody>
+						<tr th:each="rgf:${facture.reglements}">  
+							<td>
+								<span th:text="${rgf.percentage}"></span>
+								<span>% reglé par </span>
+								<span th:text="${rgf.reglement.type}"></span>
+							</td> 
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			* Merci de faire le reglement par compte bancaire  &numero;<span th:text="${maSociete.compteBancaire}">
+		</div>
+					
+    
+</body>
+</html>

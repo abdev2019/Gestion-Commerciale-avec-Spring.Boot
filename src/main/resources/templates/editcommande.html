@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	    layout:decorator="template"> 
+<head> 
+<meta charset="utf-8">
+<title>Mise à jour Commande</title> 
+<script type="text/javascript">
+	function editLigne(ref)
+	{
+		detecterLigne(ref);
+		var tds = $("#tr_"+ref).find("td");
+		$(document.formStoreLc.qte).val( $(tds[2]).html() );
+		$(document.formStoreLc.prix).val( $(tds[1]).html() );
+		$(document.formStoreLc.produit).val( ref );
+	}
+
+	function detecterLigne(ref)
+	{ 
+		$("tr").removeClass("alert-warning");
+		$("#tr_"+ref).addClass("alert-warning");
+		lastref = ref;
+	}
+</script>
+</head>
+
+<body>
+<div layout:fragment="body" >  
+<script type="text/javascript">$("#page").append('Commandes')</script>  
+	 	<script type="text/javascript" th:inline="javascript">
+		$("#page").parent().after('<li><a href="#">Mise à jour</a></li>'); 
+		$("#page").parent().after('<li><a href="#">Commande &numero;'+[[${commande.numero}]]+'</a></li>');
+		</script> 
+		
+			<div class="card bg-gradient">
+				<div class="card-header" > 
+		         	Mise à jour du commande
+				</div>
+				
+				<div class="card-body p-4" >
+				
+					<div class="alert alert-success text-success" th:if="${updateOk}" th:text="${updateOk}"></div>
+					<div class="alert alert-success text-primary" th:if="${addOk}" th:text="${addOk}"></div>
+					<div class="alert alert-danger text-danger" th:if="${deleteOk}" th:text="${deleteOk}"></div>
+
+					<div  class=""> 
+		         	<div class="row">
+			         	
+			         	<div class="col-md-4" style="padding-left:0" id="formulaireNouveauCommande"  >
+					 
+				          	<div class="card"> 
+					            <div class="card-body"> 
+									<form method="post" th:action="@{/commandes/update}">
+									<div th:if="${updateField}" th:text="${updateField}" class="alert-danger"></div>
+										<table class="table"> 
+										  <tbody>
+										  	<tr>
+										      <td><b>Numéro</b></td>
+										      	<td>
+										       	<input th:value="${commande.numero}" type="hidden" name="numero" class="form-control">
+										       	<p th:text="${commande.numero}" ></p> 
+									       		</td>
+										    	</tr>
+										    <tr>
+										      <td><b>Date</b><br><small class="alert-danger">DD/MM/YYYY</small></td>
+										      <td>
+										        <input th:value="${commande.dateCommande}?${#dates.format(commande.dateCommande, 'yyyy-MM-dd')}" type="date" name="dateCommande" 
+										        class="form-control">
+										        <p th:errors="${commande.dateCommande}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Validé</b>
+										        <br> </td>
+										      <td>
+										        <select name="valide" 
+	        										th:class="${commande.valide}?'custom-select alert-success':'custom-select alert-dark'">
+										        	<option value="true" class="alert-success" th:selected="${commande.valide}?'true':'false'">OUI</option>
+										        	<option value="false" class="alert-dark"  th:selected="${commande.valide}?'false':'true'">NON</option>
+										        </select>
+										        <p th:errors="${commande.valide}" class="text-danger"></p></td>
+										    </tr>
+										    <tr th:if="${commande.client}">
+										      <td><b>Client</b> </td>
+										      	<td>
+											      	<select name="client" class="custom-select">
+											      		<option  value="null">-</option>
+											      		<option th:value="${commande.client.code}" th:text="${commande.client.code}+' ('+${commande.client.nom}+' '+${commande.client.prenom}+')'" selected></option>
+											      		<option th:each="client:${clients}" th:value="${client.code}" th:text="${client.code}+' ('+${client.nom}+' '+${client.prenom}+')'"></option>
+											      	</select> 
+											        <p th:errors="${commande.client}" class="text-danger"></p>
+									        	</td>
+										    </tr>
+										    
+										    <tr th:if="${commande.fournisseur}">
+										      <td><b>Fournisseur</b> </td>
+										      	<td>
+											      	<select name="fournisseur" class="custom-select">
+											      		<option value="null">-</option>
+											      		<option th:value="${commande.fournisseur.code}" th:text="${commande.fournisseur.code}+' ('+${commande.fournisseur.nom}+')'" selected></option>
+											      		<option th:each="fournisseur:${fournisseurs}" th:value="${fournisseur.code}" th:text="${fournisseur.code}+' ('+${fournisseur.nom}+')'"></option>
+											      	</select> 
+											        <p th:errors="${commande.fournisseur}" class="text-danger"></p>
+									        	</td>
+										    </tr>
+										     
+										    <tr>
+										      <td>&nbsp;</td>
+										      <td>
+										      <span th:if="${alert}" th:text="${alert}"></span>
+										      <br>
+										      	<a th:href="@{/commandes/delete(numero=${commande.numero})}" class="btn btn-danger">Supprimer</a>
+										        <button class="btn btn-success" type="submit">Enregistrer</button>
+										      </td>
+										    </tr>
+										  </tbody>
+										</table>
+									</form>
+					            </div>
+							</div>
+				        </div>  
+				
+			         	
+			         	<div class="col pt-2" id="listeLignes"> 
+			         		<h6>Ajouter une ligne :</h6> 
+			         			<form name="formStoreLc" method="post" th:action="@{/commandes/ligne/add}">
+			         			<input type="hidden" name="commande" th:value="${commande.numero}" />
+			         			<div th:if="${exception}" th:text="${exception.message}" class="alert-danger"></div> 
+					        	<div th:if="${addLcOk}" th:text="${addLcOk}" class="alert-success"></div>
+			         			<table class="table">  
+										<tr>  
+											<td> 
+												<select onchange="detecterLigne(this.value)"  name="produit" class="custom-select">
+													<option value="0" >Selectionner un produit...</option>
+													<option th:each="produit:${produits}" 
+															th:value="${produit.ref}" 
+															th:text="${produit.designation}"  ></option>
+												</select>
+											</td> 
+											<td>
+												<div  class="input-group">
+												<input placeholder="prix" name="prix" id="prix" class="form-control" readonly="1">
+												<div class="input-group-append">
+													<span  class="input-group-text">MAD</span>
+												</div>
+												</div>
+											</td>
+											<td> <input placeholder="Quantité" name="qte" class="form-control" /> </td>  
+											<td>
+												<button class="btn btn-primary btn-sm text-light"><i class="fa fa-check"></i></button>
+											</td>
+										</tr> 
+								</table>
+								</form> 
+			         		<br> 
+			         		
+					        <div th:if="${deleteLcOk}" th:text="${deleteLcOk}" class="alert-warning"></div>
+					        <div th:if="${updateLcOk}" th:text="${updateLcOk}" class="alert-success"></div>
+			         		
+							<div  style="overflow-y:scroll;max-height:500px">
+					           <table class="table table-hover">
+									<thead>
+										<tr>  
+											<th>Produit</th>
+											<th>Prix unitaire</th> 
+											<th>Quantité</th> 
+											<th></th> 
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="ligne:${commande.lignesCommande}" th:id="'tr_'+${ligne.produit.ref}">  
+											<td th:text="${ligne.produit.designation}"></td>
+											<td th:text="${ligne.produit.prix}"></td> 
+											<td th:text="${ligne.qte}"></td>  
+											<td>
+												<a class="btn btn-danger btn-sm"  th:href="@{/commandes/ligne/delete(id=${ligne.id},numCommande=${commande.numero})}" ><i class="fa fa-remove"></i></a>
+												<a th:onclick="'editLigne(\''+${ligne.produit.ref}+'\')'" class="btn btn-primary btn-sm text-light"><i class="fa fa-edit"></i></a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+				           </div>
+							<div>
+					          	<ul class="pagination bg-dark" style="border-radius:0">
+									<li th:each="pa,status:${pages}" class="nav-item">
+										<a 	th:class="${status.index}==${pageCourant}?'active nav-link ':'nav-link '" 
+											th:href="@{/commandes/get(numero=${commande.numero}, page=${status.index},size=${size},motCle=${motCle})}" th:text="${status.index}+1"></a>
+									</li>
+								</ul> 
+				           	</div>
+			         	</div>  
+					</div> 
+					</div>
+				
+				</div>
+			</div>  
+</div> 
+</body>
+</html>

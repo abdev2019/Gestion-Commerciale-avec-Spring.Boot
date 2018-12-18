@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" >
+
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Connexion</title>  	
+    <link rel="stylesheet" th:href="@{/resources/css/bootstrap.css}" type="text/css"> 
+    
+	<style type="text/css">
+		
+
+		#login-container{
+		border:1px solid gray;border-color:rgba(255,255,255,0.1);border-radius:10px;
+		-moz-border-radius:10px;-webkit-border-radius:10px;-khtml-border-radius:10px;
+		margin:0 auto; }
+		
+		#login-sub-container{
+		border:1px solid #333;border-color:rgba(0,0,0,0.2);border-radius:10px;
+		-moz-border-radius:10px;-webkit-border-radius:10px;-khtml-border-radius:10px;
+		box-shadow:0 0 10px #000 inset; left:5px; }
+		
+		#login-sub-header{
+		background-color:#02435d;background-color:rgba(2,67,93,0.75);
+		filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#c002435d,endColorstr=#c002435d);
+		border-bottom:1px solid #002F3F;border-radius:5px 5px 0 0;-moz-border-radius:5px 5px 0 0;
+		-webkit-border-radius:5px 5px 0 0;-khtml-border-radius:5px 5px 0 0;  }
+		 
+		#login-sub{
+		background-color:#035271;background-color:rgba(3,82,113,0.75);
+		filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#c0035271,endColorstr=#c0035271);
+		border-radius:0 0 5px 5px;-moz-border-radius:0 0 5px 5px;-webkit-border-radius:0 0 5px 5px;
+		-khtml-border-radius:0 0 5px 5px;border-top:1px solid #0D7291; 
+		 color:white;font-size:12px; }
+		
+		button,button[disabled]:active,input[type=submit],input[type=submit][disabled]:active,input[type=button],input[type=button][disabled]:active,.login-btn a.loginbtn{
+		background:#02324A;background-image:-moz-linear-gradient(#1090b0,#096479);background-image:-o-linear-gradient(#1090b0,#096479);background-image:-ms-linear-gradient(#1090b0,#096479);-cp-background-image:linear-gradient(#1090b0,#096479);behavior:url(/cPanel_magic_revision_1331293173/unprotected/cjt/ie9gradients.htc);background-image:-webkit-gradient(linear,left top,left bottom,from(#1090b0),to(#096479));filter:progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#1090b0',EndColorStr='#096479',GradientType=0);border:1px solid #01303f;-moz-box-shadow:0 0 2px 2px #034C64;-webkit-box-shadow:0 0 2px 2px #034C64;box-shadow:0 0 2px 2px #034C64;text-shadow:0 1px 0 #063A46;border-radius:3px;-moz-border-radius:3px;-webkit-border-radius:3px;-khtml-border-radius:3px;border-radius:3px;color:#FFF;cursor:pointer;font-size:12px;font-weight:bold;padding:4px 10px;width:auto;overflow:visible;}
+		
+		
+		button:active,input[type=submit]:active,input[type=button]:active,.login-btn a.loginbtn:hover{
+		background-color:#F90!important;background-image:-moz-linear-gradient(#096479,#1090b0);background-image:-o-linear-gradient(#096479,#1090b0);background-image:-ms-linear-gradient(#096479,#1090b0);-cp-background-image:linear-gradient(#096479,#1090b0);background-image:-webkit-gradient(linear,left top,left bottom,from(#096479),to(#1090b0));filter:progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#096479',EndColorStr='#1090b0',GradientType=0);-moz-box-shadow:none;-webkit-box-shadow:none;box-shadow:none;}
+		
+		
+		button[disabled],button[disabled]:active,input[type=submit][disabled],input[type=submit][disabled]:active,input[type=button][disabled],input[type=button][disabled]:active{
+		border:1px solid #034c64;color:#034c64;cursor:default;}
+ 	
+ 	 
+	</style>
+	
+<body class="bg-dark">  
+<div class="mt-5">
+		<div class="container col-md-4 p-2" id="login-container">
+            <div id="login-sub-container" >
+                <div id="login-sub-header" class="p-2 pt-3"  >
+                   	<img alt="LOGO" th:src="@{/resources/img/logo.png}" style="width: 50px"> 
+                	<span class="h4 text-light">Authentification</span>
+                </div>
+                <div id="login-sub" class="p-5"> 
+                	
+                	<form th:action="@{/login}" method="post">
+		               <div class="form-group">
+		                 <label>Login</label>
+		                 <input name="username" type="text" class="form-control" placeholder="Enter email"> </div>
+		               <div class="form-group">
+		                 <label>Password</label>
+		                 <input name="password"  type="password" class="form-control" placeholder="Password"> </div>
+		               <button type="submit" class="btn btn-secondary">Login</button>
+		             </form><br>
+		             <h5 th:if="${param.error}" class="alert alert-info text-danger">
+		             	Username / password incorrect !</h5>
+	  
+                </div> 
+            </div>                
+        </div>
+
+</div>
+</body> 
+</html>

@@ -1,0 +1,371 @@
+	<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	    layout:decorator="template">
+	    
+<head> 
+<meta charset="utf-8">
+<title>Articles</title>
+
+
+<script sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_PRODUITS')">
+	function openNavFormulaireUpdateProduit(id) { 
+		if(id!=null)getProduit(id); 
+		$("tr").css("background-color","");
+		$("#formulaireNouveauProduit").hide();
+		$("#formulaireUpdateProduit").show();
+	} 
+	
+	function closeNavFormulaireUpdateProduit() { 
+	    $("tr").css("background-color","");
+		$("#formulaireUpdateProduit").hide();
+	} 
+	
+	function openNavFormulaireNouveauProduit() {  
+		$("tr").css("background-color","");
+		$("#formulaireUpdateProduit").hide(); 
+		$("#formulaireNouveauProduit").show();
+	} 
+	
+	function closeNavFormulaireNouveauProduit() { 
+		$("#formulaireNouveauProduit").hide(); 
+	}
+	
+	function getProduit(id)
+	{ 
+		$.ajax({ 
+			url : wwwpath+"/produits/get", 
+			data : {    ref : id  }, 
+			type : "POST",
+			dataType : "json",  
+			success : function( json ) {   
+				$("#refProduitToUpdate").html(json.ref);
+				document.formulaireUpdateProduit.ref.value=json.ref;
+				document.formulaireUpdateProduit.designation.value=json.designation;
+				document.formulaireUpdateProduit.prix.value=json.prix;
+				document.formulaireUpdateProduit.quantite.value=json.quantite;
+				document.formulaireUpdateProduit.quantiteAlert.value=json.quantiteAlert;
+				document.formulaireUpdateProduit.famille.value=json.famille.code;
+				document.formulaireUpdateProduit.tva.value=json.tva.code;
+				$("#tr"+id).css("background-color", "#CCF");
+			},
+			error : function( xhr, status ) { alert("Erreur dans le serveur..."); } 
+		});
+	} 
+	</script>  
+ 
+</head>
+
+<body>
+<div layout:fragment="body" > 
+	 <script type="text/javascript">$("#page").html('Produits')</script>
+	 
+	<div  sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SHOW_PRODUITS')">  
+			<div class="card bg-gradient"> 
+				<div class="card-header text-center">Produits</div>
+				<div class="card-body p-4" >
+				
+					<div class="row py-4">
+						<form th:action="@{/produits}" class="col pl-0">
+						<div class="col-md-8 input-group">  
+				      		<div class="input-group-prepend">
+						    	<label class="col-form-label col-form-label-sm input-group-text p-0" for="mc"> &nbsp;Mot clé : &nbsp;</label>
+						  	</div>
+				      		<input type="text" id="mc" name="mc"  th:value="${mc}" 
+				      				placeholder="Designation, prix, famille..." class="form-control form-control-sm" /> 
+							<button type="submit">GO</button>
+						</div>
+						</form>
+						<div class="col">
+							<div class="dropdown" style="float:right">
+							  	<button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							    	Nombre de lignes
+							  	</button>
+							  	<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+								    <a class="dropdown-item" th:href="@{/produits(size=4 )}">4</a>
+								    <a class="dropdown-item" th:href="@{/produits(size=10 )}">10</a> 
+								    <a class="dropdown-item" th:href="@{/produits(size=20 )}">20</a>
+								    <a class="dropdown-item" th:href="@{/produits(size=30 )}">30</a>
+								    <a class="dropdown-item" th:href="@{/produits(size=50 )}">50</a>
+								    <a class="dropdown-item" th:href="@{/produits(size=80 )}">80</a> 
+								    <a class="dropdown-item" th:href="@{/produits(size=100 )}">100</a>
+							  	</div>
+							</div>
+						</div>
+					</div>
+				
+					<div class="col">
+						<div class="alert alert-success text-success" th:if="${updateOk}" th:text="${updateOk}"></div>
+						<div class="alert alert-success text-primary" th:if="${addOk}" th:text="${addOk}"></div>
+						<div class="alert alert-danger text-danger" th:if="${deleteOk}" th:text="${deleteOk}"></div>
+					</div>
+					
+					<div  class="">
+		         	<div class="row">
+			         	
+			         	<div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_PRODUITS')" id="formulaireNouveauProduit" class="col-md-4" style="display:none" >
+					 
+				          	<div class="card">
+					            <div class="card-header" >
+					            	Ajout nouveau article
+        					  		<a href="javascript:void(0)" class="closebtn" style="border:none; float:right" onclick="closeNavFormulaireNouveauProduit()">
+				  					<i class="fa fa-close"></i>
+				  					</a>
+					            </div>
+					            <div class="card-body"> 
+									<form method="post" th:action="@{/produits/add}">
+										<table class="table"> 
+										  <tbody>
+										  	<tr>
+										      <td><b>Référence</b></td>
+										      	<td>
+										       	<input th:value="${produit.ref}" type="text" name="ref" class="form-control">
+										       	<p th:errors="${produit.ref}" class="text-danger"></p>
+									       		<p th:if="${dejaExist}" class="text-danger">Reference dèja existe !</p>
+									       		</td>
+										    	</tr>
+										    <tr>
+										      <td><b>Designation</b></td>
+										      <td>
+										        <input th:value="${produit.designation}" type="text" name="designation" 
+										        class="form-control">
+										        <p th:errors="${produit.designation}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Prix</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${produit.prix}"  type='number'  step="0.01" name="prix" 
+										        class="form-control">
+										        <p th:errors="${produit.prix}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Quantite</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${produit.quantite}"  type='number'   name="quantite" 
+										        class="form-control">
+										        <p th:errors="${produit.quantite}" class="text-danger"></p></td>
+										    </tr>
+										    
+										    <tr>
+										      <td><b>Stock d'alerte</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${produit.quantiteAlert}"   type='number'   name="quantiteAlert" 
+										        class="form-control">
+										        <p th:errors="${produit.quantiteAlert}" class="text-danger"></p></td>
+										    </tr>
+										    
+										    <tr>
+										      <td><b>Famille</b></td>
+										      <td class="input-group">
+										      		<select id="familleNouveauArticle" name="famille" class="custom-select" aria-label="Example select with button addon">
+										        		<option th:each="famille:${familles}" th:text="${famille}" th:value="${famille.code}">
+										        		
+										        		</option>
+										        	</select>
+										        	<div class="input-group-append"> 
+										        		<button class="btn btn-outline-secondary" type="button" onclick="$('#divFormulaireFamilles').modal('show')">
+										        			&#9776;
+									        			</button> 
+										        	</div>
+										      </td>
+										    </tr>
+										    <tr>
+										      <td><b>TVA</b></td>
+										      	<td class="input-group">
+										        	<select id="listeTvasNouveauArticle" name="tva" class="custom-select" aria-label="Example select with button addon">
+										        		<option th:each="tva:${tvas}" th:text="${tva.designation}+' : '+${tva}+'%'" th:value="${tva.code}">
+										        		
+										        		</option>
+										        	</select> 
+										        	<div class="input-group-append"> 
+										        		<button class="btn btn-outline-secondary" type="button" onclick="$('#divFormulaireTvas').modal('show')">
+										        			&#9776;
+									        			</button>
+										        	</div>
+									        	</td>
+										    </tr>
+										    <tr>
+										      <td>&nbsp;</td>
+										      <td>
+										      <span th:if="${alert}" th:text="${alert}"></span>
+										      <br>
+										      	<button type="button" class="btn btn-default" onclick="closeNavFormulaireNouveauProduit()">Annuler</button>
+										        <button class="btn btn-success" type="submit">Enregistrer</button>
+										      </td>
+										    </tr>
+										  </tbody>
+										</table>
+									</form>
+					            </div>
+							</div>
+				        </div>  
+				
+			         	
+			         	<div  class="col" id="listeArticles"> 
+							<div class="limit">
+					           <table class="table table-hover">
+									<thead>
+										<tr> 
+											<th>Reference</th>
+											<th>Designation</th>
+											<th>Prix</th>
+											<th>Famille</th>
+											<th>TVA</th>
+											<th class="alert-primary text-center"><i class="fa d-inline fa-lg fa fa fa-database"></i></th>
+											<th class="alert-warning text-center"><b><i class="fa fa-bell-o"></i></b></th>
+											 
+											<th sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_PRODUITS')">
+												<a class="btn btn-info btn-sm text-light" onclick="openNavFormulaireNouveauProduit()">
+													<i class="fa fa-plus text-light"></i> Nouveau</a>
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="p:${produits}" th:id="'tr'+${p.ref}">
+											<td th:text="${p.ref}"></td>
+											<td th:text="${p.designation}"></td>
+											<td th:text="${p.prix}"></td>
+											<td th:text="${p.famille}"></td>
+											<td th:text="${p.tva}+'%'"></td>
+											<td th:text="${p.quantite}" th:class="(${p.quantite}<=${p.quantiteAlert})? 'alert-danger text-center' : 'alert-success text-center' ">
+											</td> 
+											<td th:text="${p.quantiteAlert}"  class="alert-warning  text-center"></td>
+											<!--td sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_ADD_COMMANDE')">
+												<a th:if="${p.quantite}<=${p.quantiteAlert}" class="btn-danger btn-sm" style="margin:0"  th:href="@{commanderproduit(ref=${p.ref})}" >
+													Commander
+												</a> 
+											</td-->
+											<td sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_PRODUITS')">
+												<a class=" btn-danger btn-sm"  th:href="@{/produits/delete(ref=${p.ref})}" ><i class="fa fa-remove"></i></a>
+												<a id="btnEdit" class=" btn-primary btn-sm text-light"  th:onclick="'openNavFormulaireUpdateProduit(\''+${p.ref}+'\')'"><i class="fa fa-edit"></i></a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+				           </div>
+							<div>
+					          	<ul class="pagination bg-dark">
+									<li th:each="pa,status:${pages}" class="nav-item">
+										<a 	th:class="${status.index}==${pageCourant}?'alert-info nav-link ':'nav-link '" 
+											th:href="@{produits(page=${status.index},size=${size},motCle=${motCle})}" th:text="${status.index}+1"></a>
+									</li>
+								</ul> 
+				           	</div>
+			         	</div>  
+		         	
+			         	<div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_PRODUITS')" id="formulaireUpdateProduit"  class="col-md-4" style="display:none" > 
+				          	<div class="card">
+					            <div class="card-header">
+					            	Mise à jour du produit
+        					  		<a href="javascript:void(0)" class="closebtn" style="border:none; float:right" onclick="closeNavFormulaireUpdateProduit()">
+				  					<i class="fa fa-close"></i>
+				  					</a>
+					            </div>
+					            <div class="card-body"> 
+									<form method="post" th:action="@{/produits/update}" name="formulaireUpdateProduit">
+							       		<input th:value="${produit.ref}" type="hidden" name="ref" class="form-control">
+										
+										<table class="table"> 
+										  <tbody>
+										  	<tr>
+										      <td><b>Référence</b></td>
+										      <td  th:text="${produit.ref}" id="refProduitToUpdate">
+										       </td>
+										    	</tr>
+										    <tr>
+										    <tr>
+										      <td><b>Designation</b></td>
+										      <td>
+										        <input th:value="${produit.designation}" type="text" name="designation" 
+										        class="form-control">
+										        <p th:errors="${produit.designation}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Prix</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${produit.prix}"  type='number' step="0.01" name="prix" 
+										        class="form-control">
+										        <p th:errors="${produit.prix}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Quantite</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${produit.quantite}"   type='number'   name="quantite" 
+										        class="form-control">
+										        <p th:errors="${produit.quantite}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Stock d'alerte</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${produit.quantiteAlert}"   type='number'   name="quantiteAlert" 
+										        class="form-control">
+										        <p th:errors="${produit.quantiteAlert}" class="text-danger"></p></td>
+										    </tr>
+											 <tr>
+										      <td><b>Famille</b></td>
+										      <td class="input-group">
+										      		<select  id="familleUpdateArticle" name="famille" class="custom-select" aria-label="Example select with button addon">
+										        		<option th:each="famille:${familles}" th:text="${famille}" th:value="${famille.code}">
+										        		
+										        		</option>
+										        	</select>
+										        	<div class="input-group-append"> 
+										        		<button class="btn btn-outline-secondary" type="button" onclick="$('#divFormulaireFamilles').modal('show')">
+										        			&#9776;
+									        			</button>
+										        	</div>
+										      </td>
+											</tr>
+											<tr>
+											  <td><b>TVA</b></td>
+											  	<td class="input-group">
+											    	<select  id="listeTvasUpdateArticle" name="tva" class="custom-select" aria-label="Example select with button addon">
+											    		<option th:each="tva:${tvas}" th:text="${tva.designation}+' : '+${tva}+'%'" th:value="${tva.code}">
+											    		
+											    		</option>
+											    	</select> 
+											    	<div class="input-group-append"> 
+											    		<button class="btn btn-outline-secondary" type="button" onclick="$('#divFormulaireTvas').modal('show')">
+											    			&#9776;
+											   			</button>
+											    	</div>
+											   	</td>
+											</tr>
+											<tr>
+											  <td>&nbsp;</td>
+											  <td>
+											  <span th:if="${alert}" th:text="${alert}"></span>
+											  <br>
+											  	<button class="btn btn-default" type="button" onclick="closeNavFormulaireUpdateProduit()">Annuler</button>
+											    <button class="btn btn-success" type="submit">Enregistrer</button>
+											  </td>
+											</tr>
+										  </tbody>
+										</table>
+									</form>
+					            </div>
+							</div>
+				        </div>  
+					
+					</div> 
+					</div>
+				
+				</div>
+			</div> 
+	</div>
+		
+	<div sec:authorize="hasRole('ROLE_ADMIN')" th:insert="familles.html"></div>
+	<div sec:authorize="hasRole('ROLE_ADMIN')" th:insert="tvas.html"></div>
+	
+	<script  th:if="${addField}"  > openNavFormulaireNouveauProduit();  </script>
+	<script th:if="${updateField}"> openNavFormulaireUpdateProduit(); </script>
+	  
+</div> 
+</body>
+</html>

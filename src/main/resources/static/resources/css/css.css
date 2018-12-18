@@ -1,0 +1,267 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+.wrapper {
+  min-height: 100%;
+
+  /* Equal to height of footer */
+  /* But also accounting for potential margin-bottom of last child */
+  margin-bottom: -90px;
+}
+.footer,
+.push { 
+  height: 90px;
+}
+
+
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+
+.fa-angle-down{color:aqua;}
+#containerFolders img, .icon{ width: 60px; }
+.fix-top-left{
+	position:absolute; 
+	top:-1px; 
+	left:-1px;
+	background-color: #EEF
+}
+.fix-tr{
+	position:absolute; 
+	top:-10px; 
+	right:5px;  
+}
+.fix-tr2{
+	position:absolute; 
+	top:1px; 
+	right:1px;  
+}
+.fix-br{
+	position:absolute; 
+	bottom:-1px; 
+	right:-1px;
+	background-color: #EEF
+}
+
+
+	.card-header{background:linear-gradient(0deg, #DDD, #FFF); color:black; }
+	.card-bottom{background:linear-gradient(0deg, #DDD, #FFF); color:black; border-top:solid 0.02em #DDD;}
+	
+	.card-header0{background:linear-gradient(0deg, #343a40, #898d95); color:white; }
+	.card-bottom0{background:linear-gradient(0deg, #898d95, #343a40); color:white; border-top:solid 0.02em gray; }
+	.card-header0 a{color:white} 
+	.card-header1 a{color:black} 
+	.card-bottom0 a{color:white} 
+	
+	.border-radius{border-radius: 10px}
+	.pagination{border-radius:0}
+	.limit{overflow-y:scroll;max-height:500px}
+	
+	
+	.bgsidenav0{
+		background-repeat:repeat-x;
+        background-image:linear-gradient(#05040e,#15141e 1000px);
+	    border-right:solid #888; 
+	    color:white;
+	}	
+	.bgsidenav0 a{color:white;}
+	.bgsidenav1 a{color:#111;}
+	
+	.bgsidenav1{ 
+		background-repeat:repeat-x;
+        background-image:linear-gradient(#D5D4De,#D5D4De 1000px);
+	    border-right:solid #888; 
+	}
+	.sidenav {
+	    height: 100%;
+	    width: 0;
+	    position: fixed;
+	    z-index: 1;
+	    top: 0;
+	    left: 0;
+	    overflow-x: hidden;
+	    transition: 0.5s;
+	    padding-top: 60px;
+	}
+	
+	.sidenav a {
+	    padding: 10px 8px 10px 32px;
+	    text-decoration: none;
+	    font-size: 16px;
+	    display: block;
+	    transition: 0.3s;
+	    border-bottom:solid 0.01em; 
+	}
+	
+	.sidenav i{width:20px}
+	
+	.sidenav a:hover {
+	    color: #55D;
+	}
+	
+	.sidenav .closebtn {
+	    position: absolute;
+	    top: 0;
+	    right: 25px;
+	    font-size: 30px;
+	    margin-left: 50px;
+	}
+	 
+	#main {
+	    transition: margin-left .5s; 
+	}
+	
+	@media screen and (max-height: 450px) {
+	  .sidenav {padding-top: 15px;}
+	  .sidenav a {font-size: 18px;}
+	}
+	  
+	 
+	.container-fluid{padding:0} 
+	{#listeArticles,#listeFournisseurs,#listeClients} table{border:solid 0.01em #ccF}
+	.card-body{padding:0; border-radius: 0; } 
+	.card{border-radius:3px;   } 
+	.row{margin:0;} 
+	.table{margin:0; }
+	.table td,th{font-size:14px}  
+		 
+		.dropdown-content {
+		    display: none;
+		    position: absolute;
+		    background-color: #ffffff;
+		    color:black;
+		    min-width: 160px;
+		    text-align:left;
+		    box-shadow: 0px 4px 10px 0px #DDD;
+		    z-index: 1;
+		}
+		 
+		.dropdown-content a {
+		    padding: 12px 16px;
+		    text-decoration: none;
+		    display: block;
+		    border-left: solid; 
+		    color: black;
+		} 
+		.dropdown:hover .dropdown-content {display: block;} 
+	 
+	 
+	@media(max-width: 920px) {
+		.sticky-top{
+			position:static;
+		} 
+	}
+	
+	 
+	 
+	 
+	 .card-header a.close-btn{color:orange}
+				#breadcrumb {
+				  list-style: none;
+				  display: inline-block; 
+				} 
+				#breadcrumb .icon{height:55px;width:55px}
+				#breadcrumb li {
+				  float: left; height:100%
+				}
+				#breadcrumb li a {
+				  display: block;
+				  background: #BBB;
+				  text-decoration: none;
+				  position: relative; 
+				  text-align: center;
+				  padding:16px;
+				  margin-right: 23px;
+				  padding-left:20px;
+				  height: 100%; 
+				}
+				#breadcrumb li:nth-child(even) a {
+				  background-color: transparent;
+				}
+				#breadcrumb li:nth-child(even) a:before {
+				  border-color: transparent;
+				  border-left-color: transparent;
+				}
+				#breadcrumb li:nth-child(even) a:after {
+				  border-left-color: transparent;
+				}
+				#breadcrumb li:first-child a {
+				  padding-left: 15px;
+				  -moz-border-radius: 4px 0 0 4px;
+				  -webkit-border-radius: 4px;
+				  border-radius: 4px 0 0 4px;
+				}
+				#breadcrumb li:first-child a:before {
+				  border: none;
+				}
+				#breadcrumb li:last-child a {
+				  padding-right: 15px;
+				  -moz-border-radius: 0 4px 4px 0;
+				  -webkit-border-radius: 0;
+				  border-radius: 0 4px 4px 0;
+				}
+				#breadcrumb li:last-child a:after {
+				  border: none;
+				}
+				#breadcrumb li a:before, #breadcrumb li a:after {
+				  content: "";
+				  position: absolute;
+				  top: 0;
+				  border: 0 solid #BBB;
+				  border-width: 28px 20px;
+				  width: 0; 
+				}
+				#breadcrumb li a:before {
+				  left: -20px;
+				  border-left-color: transparent;
+				}
+				#breadcrumb li a:after {
+				  left: 100%;
+				  border-color: transparent;
+				  border-left-color: #BBB;
+				}
+				#breadcrumb li a:hover {
+				  background-color: #1abc9c;
+				}
+				#breadcrumb li a:hover:before {
+				  border-color: #1abc9c;
+				  border-left-color: transparent;
+				}
+				#breadcrumb li a:hover:after {
+				  border-left-color: #1abc9c;
+				}
+				#breadcrumb li a:active {
+				  background-color: #16a085;
+				}
+				#breadcrumb li a:active:before {
+				  border-color: #16a085;
+				  border-left-color: transparent;
+				}
+				#breadcrumb li a:active:after {
+				  border-left-color: #16a085;
+				} 
+	 
+	 
+
+		.montheme{}
+		.titlemenu{font-weight: bolder; color:#22A;} 
+		.myborder{ border-left:solid #55D 0.01em;}

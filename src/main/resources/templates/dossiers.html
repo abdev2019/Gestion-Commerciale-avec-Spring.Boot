@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	    layout:decorator="template">
+	    
+<head>
+<meta charset="utf-8">
+<title>Dossiers</title>   
+</head>
+
+<body>
+<div layout:fragment="body" class="col mt-4">	
+	<script type="text/javascript">$("#page").html('Dossiers')</script>
+	<script type="text/javascript" th:if="${dos}" th:inline="javascript">
+		$("#page").parent().after('<li><a href="#">Détails</a></li>');
+		$("#page").parent().after('<li><a href="#">Dossier &numero;'+[[${dos.numero}]]
+						+'</a></li>');
+	</script> 
+
+	
+	<div class=" card ">
+	
+				 <div class="card-header text-center">Dossiers</div>
+	<div class="col card-body p-3"  sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SHOW_DOSSIERS')">
+		<div th:if="${selectFolder}" class="alert alert-danger text-danger h5" >
+			Vous devez ouvrir un dossier !
+		</div>
+	
+		<div class="row">
+			<div class="col-md-5 p-0">
+				<b>Dossiers : </b>
+				<a th:href="@{/dossiers(type='t',size=${size},page=${page},dateo=${$dateo},datef=${$datef})}">Tous</a>&nbsp;&nbsp;&nbsp;&nbsp;
+				<a th:href="@{/dossiers(type='f',size=${size},page=${page},dateo=${$dateo},datef=${$datef})}">Fermés</a>&nbsp;&nbsp;&nbsp;&nbsp;
+				<a th:href="@{/dossiers(type='nf',size=${size},page=${page},dateo=${$dateo},datef=${$datef})}">Non fermés</a>
+			</div>  
+			<div class="col p-0" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_DOSSIERS')">
+				<form th:action="@{/dossiers/save}" method="post" id="formNewDos"  style="display:none" 
+						class="input-group col-md-5 float-right p-0"> 
+					<input class="form-control form-control-sm" name="nom" placeholder="Entrer le nom du dossier" />
+					<button type="submit"><i class="fa fa-check"></i></button> 
+					<button type="button" onclick="$('#btnAdd').show();$('#formNewDos').hide();$('#small').hide();" 
+					class="btn-dark"><i class="fa fa-close"></i></button>
+				</form>  
+				
+				<div class="clearfix"></div>					
+				<small id="small" class="text-danger float-right" th:if=${addFailed} th:errors="${dossier.nom}"></small>
+				
+				<a class="btn btn-warning btn-sm float-right" id="btnAdd"
+					onclick="$(this).hide();$('#formNewDos').show();">
+					<i class="fa fa-plus text-light"></i> Nouveau
+				</a>
+				<script th:if=${addFailed} type="text/javascript">
+					$("#btnAdd").hide();
+					$('#formNewDos').show();
+				</script>
+			</div> 
+		</div> 
+		
+		<div class="row pt-5">
+			<div class="col-md-4 input-group pl-0"> 
+	      		<div class="input-group-prepend">
+			    	<label class="col-form-label col-form-label-sm input-group-text p-0" for="nom"> &nbsp;Nom &nbsp;</label>
+			  	</div>
+	      		<input type="text" id="nom"  th:value="${nom}" class="form-control form-control-sm"  
+						th:onchange="' location.href=\''+@{/dossiers(size=40,page=${page},dateo=${$dateo},datef=${$datef})}+'&nom=\'+this.value '"
+					/> 
+			</div>
+			
+			<div class="col">  
+			      	<div class="input-group"> 
+			      		<div class="input-group-prepend">
+					    	<label class="col-form-label col-form-label-sm input-group-text p-0" for="dateo"> &nbsp;Création &nbsp;</label>
+					  	</div> 
+			      		<input type="date" id="dateo"  th:value="${dateo}" class="form-control form-control-sm"  
+							th:onchange="' location.href=\''+@{/dossiers(size=${size},page=${page},datef=${$datef},nom=${nom},type=${type})}+'&dateo=\'+this.value '"
+						/> 
+					</div>
+		      	</div>
+		      	
+		      	<div class="col ml-4">  
+			      	<div class="input-group"> 
+			      		<div class="input-group-prepend">
+					    	<label class="col-form-label col-form-label-sm input-group-text p-0" for="datef"> &nbsp;Fermeture &nbsp;</label>
+					  	</div>
+			      		<input type="date" id="datef"  th:value="${datef}" class="form-control form-control-sm"  
+							th:onchange="' location.href=\''+@{/dossiers(size=${size},page=${page},dateo=${$dateo},nom=${nom},type=${type})}+'&datef=\'+this.value '"
+						/> 
+					</div>
+		      	</div>
+		      	
+			
+			<div class="col-md-2 dropdown text-right p-0" >
+			  	<button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			    	Elements
+			  	</button> 
+			  	<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+				    <a class="dropdown-item" th:href="@{/dossiers(size=4,type=${type},page=${page},dateo=${$dateo},datef=${$datef},nom=${$nom})}">4/page</a>
+				    <a class="dropdown-item" th:href="@{/dossiers(size=10,type=${type},page=${page},dateo=${$dateo},datef=${$datef},nom=${$nom})}">10/page</a>
+				    <a class="dropdown-item" th:href="@{/dossiers(size=20,type=${type},page=${page},dateo=${$dateo},datef=${$datef},nom=${$nom})}">20/page</a>
+				    <a class="dropdown-item" th:href="@{/dossiers(size=40,type=${type},page=${page},dateo=${$dateo},datef=${$datef},nom=${$nom})}">40/page</a>  
+			  	</div>
+			</div>
+		</div>
+		
+		<div th:if="${deleteOk}" th:text="${deleteOk}" class="alert alert-danger text-danger mt-4"> 
+	 	</div> 
+	 	<div th:if="${addOk}" class="alert alert-success text-success mt-4"> 
+	 		Dossier ajouté !
+	 	</div> 
+	 	
+		
+	 	<div th:if="${dos}" class="col border border-primary p-5 mb-5 my-5" id="detailsDos" >  
+	 		<div class="fix-top-left">
+	 			<b class="border border-primary float-left p-2" >
+		 			Dossier numéro : <span th:text=${dos.numero}></span>
+	 			</b>
+	 		</div> 
+	 		<div class="fix-tr2">
+	 			<a onclick="$('#detailsDos').remove()" class="btn-sm btn-light">
+	 				<i class="fa fa-close"></i>
+	 			</a>
+	 		</div> 
+	 		
+		  	
+			<div class="col py-2">
+	 		<a class="btn btn-primary float-right" th:href="@{/dossiers/open(num=${dos.numero})}">Ouvrir</a>
+		  	<div class="clearfix"></div><br>
+				<div class="row text-center">
+					<div class="col border-primary btn-dark p-5 mr-4">
+						<h3>Commandes</h3><span th:text="${nbrCmd}"></span>
+					</div>
+					<div class="col border-primary btn-dark p-5 mr-4">
+						<h3>Factures</h3><span th:text="${nbrFct}"></span>
+					</div>  
+					<div class="col border-primary btn-dark p-5 mr-4">
+						<h3>Achats</h3>
+						<span th:text="${nbra}"></span> Produits<br>
+						<span th:text="${prixa}"></span> MAD
+					</div>
+					<div class="col border-primary btn-dark p-5 ">
+						<h3>Ventes</h3>
+						<span th:text="${nbrv}"></span> Produits<br>
+						<span th:text="${prixv}"></span> MAD
+					</div>
+				</div>
+			</div> 
+		 	 <br>
+	 	 	<div class="col">
+			 	<div th:if="${updateOk}" class="alert alert-success text-success">
+			 		Modifications effectués.
+			 	</div> 
+		 	</div>
+	 		
+		 	<div class="col" >  
+		 		<div th:if="${updateFailed}"></div>
+		 		<form th:action="@{/dossiers/save}" method="post">
+		 		<input name="numero" type="hidden" th:value="${dos.numero}" />
+		 		<input name="dateCreation" type="hidden" th:value="${dos.dateCreation}?${#dates.format(dos.dateCreation, 'yyyy-MM-dd')}" />
+				<table class="table"> 
+	 				<tbody>
+	 					<tr>
+	 						<td>Nom :</td>
+	 						<td th:text="${dos.nom}"></td>
+	 						<td sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_DOSSIERS')"> 
+	 							<div  id="tdNom" style="display: none" class="input-group">
+		 							<input class="form-control form-control-sm" name="nom" th:value="${dos.nom}" />
+		 							<small th:if="${updateFailed}" th:errors="${dossier.nom}" class="text-danger"></small>
+	 								<button type="submit" class="btn btn-success btn-sm mr-2">
+	 									<i class="fa fa-check fa-x"></i></button>
+ 									<a class=" btn-dark btn-sm"  
+										onclick="$('#btnNom').show();$('#tdNom').hide();">
+									<i class="fa fa-close text-light"></i>
+									</a> 
+ 								</div>
+ 							</td> 
+	 						<td sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_DOSSIERS')">
+	 							<a id="btnNom" class=" btn-primary btn-sm float-right" 
+									onclick="$(this).hide();$('#tdNom').show();">
+									<i class="fa fa-edit text-light"></i>
+								</a> 
+	 						</td> 
+	 					</tr>
+	 					
+	 					<tr>
+	 						<td>Date création :</td>
+	 						<td th:text="${dos.dateCreation}?${#dates.format(dos.dateCreation, 'dd-MM-yyyy')}"></td>
+	 						<td> 
+ 							</td>
+	 						<td>
+ 							</td>
+	 					</tr>
+	 					
+	 					<tr>
+	 						<td>Date fermeture :</td>
+	 						<td th:text="${dos.dateFermeture}?${#dates.format(dos.dateFermeture, 'dd-MM-yyyy')}"></td>
+	 						<td sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_DOSSIERS')">
+	 							<div id="tdDateFermeture" class="input-group" style="display: none">
+		 							<input class="form-control form-control-sm" name="dateFermeture" type="date" th:value="${dos.dateFermeture}?${#dates.format(dos.dateFermeture, 'yyyy-MM-dd')}" /> 
+		 							<button type="submit" class="btn btn-success  btn-sm mr-2">
+		 								<i class="fa fa-check fa-x"></i></button>
+	 								<a class="btn-dark btn-sm"  
+										onclick="$('#btnUpdateDate').show();$('#tdDateFermeture').hide();">
+									<i class="fa fa-close text-light"></i>
+									</a> 
+ 								</div>
+ 								<small th:if="${updateFailed}" th:errors="${dossier.dateFermeture}" class="text-danger"></small>
+ 							</td>
+	 						<td sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_DOSSIERS')">
+		 						<a class=" btn-primary btn-sm float-right" id="btnUpdateDate"
+									onclick="$(this).hide(); $('#tdDateFermeture').show();">
+									<i class="fa fa-edit text-light"></i>
+								</a>
+ 							</td>
+	 					</tr>
+	 					
+	 					<tr>
+	 						<td>Creé par :</td>
+	 						<td th:text="${dos.user}"></td>
+	 						<td></td>
+	 						<td class="text-right">
+	 							<a sec:authorize="hasRole('ROLE_ADMIN')"  th:href="@{/users(mc=${dos.user})}" class="btn-sm btn-primary">
+	 								<i class="fa fa-external-link"></i>
+	 							</a>
+	 						</td>
+	 					</tr> 
+	 				</tbody>
+				</table> 
+				</form> 
+				 
+			 	<br> <br> 
+			 	<form sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_DOSSIERS')"  
+			 		th:action="@{/dossiers/delete}" method="post">
+			 		<input name="num" type="hidden" th:value="${dos.numero}" />
+		 			<button class="btn btn-dark float-right" type="submit">Supprimer</button>
+	 			</form>
+	 		 
+		  	</div> 
+		</div> 
+		
+		<th:block  th:with="colCount=${5}" >
+		    <div th:each="r : ${#numbers.sequence(0, dossiers.size(), colCount)}"  
+		    		class="card-deck opaque-overlay py-5 row1" >
+		        <div th:each="c : ${#numbers.sequence(0, colCount - 1)}" 
+		        th:if="${r + c &lt; dossiers.size()}" 
+		        th:with="dos = ${dossiers.get(r + c)}" class="card border-primary pb-4 col-md-3" 
+		    		th:id="'dos_'+${dos.numero}"> 
+				 			<div class="text-center">
+				 			<a th:href="@{/dossiers/open(num=${dos.numero})}">
+					 			<img alt="DOSSIER"  class="icon"
+					 				th:src="${dos.dateFermeture}!=null? @{/resources/img/folderf.png} : @{/resources/img/foldero.png}">  
+					 			<br>
+					 			<b th:text="${dos.nom}"></b>
+				 			</a>
+				 			</div>
+				 			<br>
+				 			<small>
+				 				Date création : 
+				 				<span th:text="${dos.dateCreation}?${#dates.format(dos.dateCreation, 'dd-MM-yyyy')}"></span>
+				 			</small> 
+				 			<small th:if="${dos.dateFermeture}" >
+				 				Date fermeture : <span th:text="${#dates.format(dos.dateFermeture, 'dd-MM-yyyy')}"></span>
+			 				</small>
+			 				<small>
+			 					<a th:href="@{/dossiers/details(num=${dos.numero})}">Details</a>
+			 				</small>
+			 				<div class="fix-br"> 
+				 				<small class="border border-primary float-right">par : <span th:text="${dos.user}"></span></small>
+				 			</div>  
+					
+					
+		        </div>
+		    </div>
+		</th:block> 
+		
+		
+		<div class="input-group border border-dark p-0">
+			<div class="pt-1 px-2 m-1"> Page </div>
+			<ul class="pagination bg-dark col mb-0">  
+				<li th:each="pa,status:${pages}" class="nav-item">
+					<a 	th:class="${status.index}==${pageCourant}?' nav-link ':'nav-link '" 
+						th:href="@{/dossiers(page=${status.index},size=${size},motCle=${motCle})}" th:text="${status.index}+1"></a>
+				</li>
+			</ul> 
+		</div>
+ 
+	</div>
+	</div>
+
+
+<input type="hidden" id="opnf" th:if="${session.dossier}" th:value="${session.dossier.numero}">
+<script> $('#dos_'+$("#opnf").val()).addClass('alert-success'); </script>
+ 
+		
+</div> 
+</body>
+</html>

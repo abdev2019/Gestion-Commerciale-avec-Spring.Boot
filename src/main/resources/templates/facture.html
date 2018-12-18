@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	    layout:decorator="template"> 
+<head> 
+<meta charset="utf-8">
+<title>Details facture</title>  
+</head>
+
+<body >
+<div layout:fragment="body" >
+			<script type="text/javascript" th:inline="javascript">
+				$("#page").append('Factures');
+		 		$("#page").parent().after('<li><a href="#">Facture &numero;'+[[${facture.numero}]]+'</a></li>');
+		 	</script>
+			
+       		<div th:if="${uok}" class="alert-success text-success p-3 my-3">Modifications effectué !</div>
+	       		
+           	
+			<div class="card  p-2" style="border:none;">  
+				<div class="card-body" > 
+				  
+
+					<div class="row p-0 mt-2">	   
+	           			<div class="col h4 form-inline p-0">
+			        		<span>Facture &numero;</span>  
+			        		<span th:text="${facture.numero}" ></span>   
+			        		<form sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_PRINT_FACTURES')" class="ml-2" th:action="@{/factures/print(num=${facture.numero})}">
+			           			<input type="hidden" name="num" th:value="${facture.numero}">
+			           			<button type="submit" class="btn-sm btn-danger">
+			           				<i class="fa fa-file-pdf-o"></i>
+			           			</button>
+			           		</form>
+			       		</div> 
+			           	<div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_FACTURES')" class="col text-right mb-3 float-right p-0">  
+					        <a  th:href="@{/factures/edit(numero=${facture.numero})}"  class="btn btn-success">Corriger</a> 
+				         	<a th:href="@{/factures/delete(numero=${facture.numero})}" class="btn btn-danger">Supprimer</a>
+			           	</div>
+					</div>
+					<div  class="col p-0">   
+		         	<div class="row">
+			         	
+			         	<div class="col-md-4 p-0" style="padding-left:0" id="formulaireNouveauFacture"  >
+					  
+					  		<div class="card mb-4"> 
+					  			<div class="card-header btn text-left pl-2" data-toggle="collapse" data-target="#infGenerale">
+					  				<i class="fa fa-info-circle"></i>
+					  				Informations
+					  				<i class="float-right fa fa-2x fa-angle-up"></i>
+					  			</div>
+					            <div class="card-body collapse show" id="infGenerale">
+					            	<table class="table"> 
+						            	<tr>
+						            		<th>&numero;: </th>  
+						            		<td th:text="${facture.numero}" ></td> 
+					            		</tr>
+					            		
+					            		<tr>
+											<th>Date : </th>  
+											<td  th:text="${facture.dateFacture}?${#dates.format(facture.dateFacture, 'dd-MM-yyyy')}"></td> 
+										</tr>
+										
+										<tr>
+											<th>Produits : </th>
+											<td th:text="${nbrProduits}"></td>
+										</tr>
+										
+										<tr>
+											<th>Total : </th>
+											<td th:text="${#numbers.formatDecimal(facture.total, 0, 'DEFAULT', 2, 'DEFAULT')}+' MAD'"></td>
+										</tr> 
+										
+										<tr>
+											<th>Total TTC: </th>
+											<td th:text="${#numbers.formatDecimal(facture.ttc, 0, 'DEFAULT', 2, 'DEFAULT')}+' MAD'"></td>
+										</tr> 
+									</table>
+					            </div>
+							</div>
+					  
+							<div class="card"  th:if="${facture.client}"> 
+								<div class="card-header btn text-left"  data-toggle="collapse" data-target="#infClt">Client
+									 <i class="float-right fa fa-2x fa-angle-up"></i>
+								</div>
+					            <div class="card-body collapse show" id="infClt">
+					            	<table class="table">
+					            		<tr> 
+					            			<td>Nom</td> 
+					            			<td th:text="${facture.client.nom}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Prenom</td> 
+					            			<td th:text="${facture.client.prenom}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Age</td> 
+					            			<td th:text="${facture.client.age}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>E-mail</td> 
+					            			<td th:text="${facture.client.email}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Addresse</td> 
+					            			<td th:text="${facture.client.adresse}"></td> 
+				            			</tr> 
+				            			<tr> 
+					            			<td>Tél.</td> 
+					            			<td th:text="${facture.client.tel}"></td> 
+				            			</tr> 
+					            	</table>
+					            </div>
+					        </div>
+					        
+					        <div class="card"  th:if="${facture.fournisseur}"> 
+								<div class="card-header btn text-left" data-toggle="collapse" data-target="#infFrs">
+									<i class="fa fa-truck"></i> Fournisseur
+									<i class="float-right fa fa-2x fa-angle-up"></i>
+								</div>
+					            <div class="card-body collapse show" id="infFrs">
+					            	<table class="table">
+					            		<tr> 
+					            			<td>Code</td> 
+					            			<td th:text="${facture.fournisseur.code}"></td> 
+				            			</tr>
+					            		<tr> 
+					            			<td>Nom</td> 
+					            			<td th:text="${facture.fournisseur.nom}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Raison sociale</td> 
+					            			<td th:text="${facture.fournisseur.raisonSociale}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Capital</td> 
+					            			<td th:text="${facture.fournisseur.capital}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Adresse</td> 
+					            			<td th:text="${facture.fournisseur.adresse}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Tél.</td> 
+					            			<td th:text="${facture.fournisseur.tel}"></td> 
+				            			</tr> 
+				            			<tr> 
+					            			<td>Fax</td> 
+					            			<td th:text="${facture.fournisseur.fax}"></td> 
+				            			</tr> 
+					            	</table>
+					            </div>
+					        </div>
+				        </div>  
+				
+			         	
+			         	<div class="col p-0 pl-3" id="listeLignes">   
+			         	<div class="card"> 
+							<div class="card-header btn text-left"  data-toggle="collapse" data-target="#cardProduits">
+								<i class="fa fa-shopping-bag"></i> Produits
+								<i class="float-right fa fa-2x fa-angle-up"></i>
+							</div>
+					        <div class="card-body collapse show" id="cardProduits">
+					        	
+								<div  style="overflow-y:scroll;max-height:500px">
+						           <table class="table table-hover">
+										<thead>
+											<tr>  
+												<th>Produit</th>
+												<th>Prix unitaire</th> 
+												<th>Quantité</th>  
+												<th>Sous-Total</th>  
+												<th>TVA(%)</th> 
+												<th>Sous-TTC</th> 
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="ligne:${facture.lignesFacture}">  
+												<td th:text="${ligne.produit.designation}"></td>
+												<td th:text="${ligne.prix}"></td>  
+												<td th:text="${ligne.qte}"></td> 
+												<td th:text="${#numbers.formatDecimal(ligne.total, 0, 'DEFAULT', 2, 'DEFAULT')}"></td> 
+												<td th:text="${ligne.produit.tva}"></td>
+												<td th:text="${#numbers.formatDecimal(ligne.ttc, 0, 'DEFAULT', 2, 'DEFAULT')}"></td> 
+											</tr>
+											<tr>  
+												<td colspan="3"></td> 
+												<td class="alert-info" th:text="'Total : '+${#numbers.formatDecimal(facture.total, 0, 'DEFAULT', 2, 'DEFAULT')}"></td> 
+												<td></td>
+												<td class="alert-info"  th:text="'Total TTC: '+${#numbers.formatDecimal(facture.ttc, 0, 'DEFAULT', 2, 'DEFAULT')}"></td> 
+											</tr>
+										</tbody>
+									</table>
+					           </div>
+					        </div>
+					    </div> 
+					    
+					    <div class="col row p-0">
+					    <div class="col card mt-4 p-0 mr-2"> 
+							<div class="card-header btn text-left"  data-toggle="collapse" data-target="#cardReductions">
+								<i class="fa fa-angle-double-down"></i> Reductions
+								<i class="float-right fa fa-2x fa-angle-up"></i>
+							</div>
+					        <div class="card-body collapse show" id="cardReductions">
+					        	
+								<div  style="overflow-y:scroll;max-height:500px">
+						           <table class="table table-hover">
+										<thead>
+											<tr>  
+												<th>Reduction</th>
+												<th>Taux</th>    
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="rdf:${facture.reductions}">  
+												<td th:text="${rdf.reduction.type}"></td>
+												<td th:text="${rdf.taux}+' %'"></td>  
+											</tr>
+										</tbody>
+									</table>
+					           </div>
+					        </div>
+					    </div> 
+					    
+					    <div class="col card mt-4 p-0"> 
+							<div class="card-header  btn text-left"
+								 data-toggle="collapse" data-target="#cardReglements">
+								<i class="fa fa-money"></i> Reglements 
+								<i class="float-right fa fa-2x fa-angle-up"></i>
+							</div>
+					        <div class="card-body collapse show" id="cardReglements" >
+					        	
+								<div  style="overflow-y:scroll;max-height:500px">
+						           <table class="table table-hover">
+										<thead>
+											<tr>  
+												<th>Type</th>
+												<th>Taux</th>    
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="rgf:${facture.reglements}">  
+												<td th:text="${rgf.reglement.type}"></td>
+												<td th:text="${rgf.percentage}+' %'"></td> 
+											</tr>
+										</tbody>
+									</table>
+					           </div>
+					        </div>
+					    </div>  
+					    </div>
+					    
+					    <div class="col card mt-4 p-0"> 
+							<div class="card-header text-left">
+								<i class="fa fa-truck"></i> Livraison  
+							</div>
+					        <div class="card-body" >
+					        	
+								<div  style="overflow-y:scroll;max-height:500px">
+						           <table class="table table-hover" th:if="${facture.livraison}"> 
+										<tbody >
+											 <tr>
+											 	<th>Date livraison : </th>
+											 	<td th:text="${facture.livraison.dateLivraison}?${#dates.format(facture.livraison.dateLivraison, 'dd-MM-yyyy')}"></td>
+											 </tr>
+											 <tr>
+											 	<th>Adresse de livraison : </th>
+											 	<td th:text="${facture.livraison.adresse}"></td>
+											 </tr>
+										</tbody>
+									</table>
+									<div th:if="${facture.livraison}==null" class="h5 text-center">
+										Aucun information.
+									</div>
+					           </div>
+					        </div>
+					    </div> 
+					    
+			         	</div>  
+					</div> 
+					</div>
+				
+				</div>
+			</div>  
+</div> 
+</body>
+</html>

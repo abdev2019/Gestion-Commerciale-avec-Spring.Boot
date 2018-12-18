@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	    layout:decorator="template"> 
+<head> 
+<meta charset="utf-8">
+<title>Details commande</title>  
+</head>
+
+<body>
+<div layout:fragment="body" >  
+			
+	 	<script type="text/javascript">$("#page").append('Commandes')</script>  
+	 	<script type="text/javascript" th:inline="javascript">
+			$("#page").parent().after('<li><a href="#">Commande &numero;'+[[${commande.numero}]]+'</a></li>');
+		</script> 
+	 
+			<div class="card">
+				<div class="card-header" > 
+		         	Details commande
+				</div>
+				
+				<div class="card-body p-2" > 
+					<div> 
+					
+					<div> 
+			            <div class="card-body row alert py-3"> 
+			            	<div class="col-md-2">
+			            		<b>Commande &numero;<span th:text="${commande.numero}" ></span></b>  
+		            		</div>
+		            		
+		            		<div class="col-md-2">
+								<b>Date : </b>  
+								<span th:text="${commande.dateCommande}?${#dates.format(commande.dateCommande, 'dd-MM-yyyy')}"></span> 
+							</div> 
+							
+							<div class="col-md-3">
+								<b>Total TTC: </b>
+								<span th:text="${commande.total}"></span> MAD
+							</div>
+							
+							<div class="col-md-2">
+								<b>Validé : </b>
+							      	<span th:if="${commande.valide}" class="text-success"><i class="fa fa-check"></i></span>
+							      	<span th:if="${commande.valide}==false" class=""><i class="fa fa-close"></i></span>    
+			            	</div>
+			            	
+			            	<div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_COMMANDES')" class="col text-right" > 
+						        <a  th:href="@{/commandes/edit(numero=${commande.numero})}"  class="btn btn-success">Corriger</a> 
+					         	<a th:href="@{/commandes/delete(numero=${commande.numero})}" class="btn btn-danger">Supprimer</a>
+			            	</div>
+			            </div>
+					</div>
+					
+		         	<div class="row mt-4">
+			         	
+			         	<div class="col-md-4" style="" id="formulaireNouveauCommande"  >
+					  
+							<div class="card"  th:if="${commande.client}"> 
+								<div class="card-header">Client</div>
+					            <div class="card-body">
+					            	<table class="table">
+					            		<tr> 
+					            			<td>Nom</td> 
+					            			<td th:text="${commande.client.nom}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Prenom</td> 
+					            			<td th:text="${commande.client.prenom}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Age</td> 
+					            			<td th:text="${commande.client.age}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>E-mail</td> 
+					            			<td th:text="${commande.client.email}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Addresse</td> 
+					            			<td th:text="${commande.client.adresse}"></td> 
+				            			</tr> 
+				            			<tr> 
+					            			<td>Tél.</td> 
+					            			<td th:text="${commande.client.tel}"></td> 
+				            			</tr> 
+					            	</table>
+					            </div>
+					        </div>
+					        
+					        <div class="card"  th:if="${commande.fournisseur}"> 
+								<div class="card-header">Fournisseur</div>
+					            <div class="card-body">
+					            	<table class="table">
+					            		<tr> 
+					            			<td>Code</td> 
+					            			<td th:text="${commande.fournisseur.code}"></td> 
+				            			</tr>
+					            		<tr> 
+					            			<td>Nom</td> 
+					            			<td th:text="${commande.fournisseur.nom}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Raison sociale</td> 
+					            			<td th:text="${commande.fournisseur.raisonSociale}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Capital</td> 
+					            			<td th:text="${commande.fournisseur.capital}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Adresse</td> 
+					            			<td th:text="${commande.fournisseur.adresse}"></td> 
+				            			</tr>
+				            			<tr> 
+					            			<td>Tél.</td> 
+					            			<td th:text="${commande.fournisseur.tel}"></td> 
+				            			</tr> 
+				            			<tr> 
+					            			<td>Fax</td> 
+					            			<td th:text="${commande.fournisseur.fax}"></td> 
+				            			</tr> 
+					            	</table>
+					            </div>
+					        </div>
+				        </div>  
+				
+			         	
+			         	<div class="col" id="listeLignes">   
+			         	<div class="card"> 
+							<div class="card-header">Produits commandés <span class="float-right badge badge-info" th:text="${nbrProduits}"></span></div>
+					        <div class="card-body">
+					        	
+								<div  style="overflow-y:scroll;max-height:500px">
+						           <table class="table table-hover">
+										<thead>
+											<tr>  
+												<th>Produit</th>
+												<th>Prix unitaire</th> 
+												<th>Quantité</th>  
+												<th>Sous-Total</th>  
+												<th>TVA(%)</th> 
+												<th>Sous-TTC</th> 
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="ligne:${commande.lignesCommande}">  
+												<td th:text="${ligne.produit.designation}"></td>
+												<td th:text="${ligne.produit.prix}"></td>  
+												<td th:text="${ligne.qte}"></td> 
+												<td th:text="${ligne.total}"></td> 
+												<td th:text="${ligne.produit.tva}"></td>
+												<td th:text="${ligne.ttc}"></td> 
+											</tr>
+										</tbody>
+									</table>
+									<br><br>
+									<div class="text-right">
+									<b class='ml-3'>Total TTC: </b>
+									<span th:text="${commande.total}"></span> MAD
+									<br><br>
+									</div>
+					           </div>
+					        </div>
+					    </div> 
+			         	</div>  
+					</div> 
+					</div>
+				
+				</div>
+			</div>  
+</div> 
+</body>
+</html>

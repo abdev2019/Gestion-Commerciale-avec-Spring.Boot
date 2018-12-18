@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html  	xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	    layout:decorator="template">
+	    
+<head> 
+<meta charset="utf-8">
+<title>Clients</title>
+
+
+<script sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_CLIENTS')" > 
+	function openNavFormulaireUpdateClient(id) { 
+		if(id!=null)getClient(id);
+		$("#listeClients").toggleClass("col-md-8");
+		$("#formulaireNouveauClient").hide();
+		$("#formulaireUpdateClient").show();
+	} 
+	
+	function closeNavFormulaireUpdateClient() { 
+		$("#listeClients").toggleClass("col-md-8");
+	    $("tr").css("background-color","");
+		$("#formulaireUpdateClient").hide();
+	} 
+	
+	function openNavFormulaireNouveauClient() { 
+		$("#listeClients").toggleClass("col-md-8"); 
+		$("tr").css("background-color","");
+		$("#formulaireUpdateClient").hide(); 
+		$("#formulaireNouveauClient").show();
+	} 
+	
+	function closeNavFormulaireNouveauClient() {
+		$("#listeClients").toggleClass("col-md-8"); 
+		$("#formulaireNouveauClient").hide(); 
+	} 
+	
+	function getClient(id)
+	{ 
+		$.ajax({ 
+			url : wwwpath+"/clients/get", 
+			data : {    code : id  }, 
+			type : "POST",
+			dataType : "json",  
+			success : function( json ) {   
+				$("#codeClientToUpdate").html(json.code);
+				document.formulaireUpdateClient.code.value=json.code;
+				document.formulaireUpdateClient.nom.value=json.nom;
+				document.formulaireUpdateClient.prenom.value=json.prenom;
+				document.formulaireUpdateClient.adresse.value=json.adresse;
+				document.formulaireUpdateClient.email.value=json.email;
+				document.formulaireUpdateClient.tel.value=json.tel;
+				document.formulaireUpdateClient.age.value=json.age;
+				$("tr").css("background-color","");
+				$("#tr"+id).css("background-color", "yellow");
+			},
+			error : function( xhr, status ) { alert("Erreur dans le serveur..."); } 
+		});
+	}
+</script> 
+
+
+
+<style type="text/css"> 
+	.tdQte{background-color:#CCF;}
+</style>
+</head>
+
+<body>
+<div layout:fragment="body"> 
+	 <script type="text/javascript">$("#page").html('Clients')</script>
+	 
+	<div class="container-fluid"  sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SHOW_CLIENTS')"> 
+				
+			<div class="card bg-gradient">
+				
+				<div class="card-header text-center">Clients</div> 
+				<div class="card-body p-4" >
+				
+					<div class="col">
+						<div class="alert alert-success text-success" th:if="${updateOk}" th:text="${updateOk}"></div>
+						<div class="alert alert-success text-primary" th:if="${addOk}" th:text="${addOk}"></div>
+						<div class="alert alert-danger text-danger" th:if="${deleteOk}" th:text="${deleteOk}"></div>
+					</div>
+
+					<div class="row py-4">
+						<form th:action="@{/clients}" class="col p-0">
+							<input type="hidden" name="size" th:value="${size}" />
+							<div class="col-md-8 input-group">  
+					      		<div class="input-group-prepend">
+							    	<label class="col-form-label col-form-label-sm input-group-text p-0" for="mc"> &nbsp;Mot clé : &nbsp;</label>
+							  	</div>
+					      		<input type="text" id="mc" name="mc"  th:value="${mc}" 
+					      				placeholder="Nom, Adresse, tél..." class="form-control form-control-sm" /> 
+								<button type="submit">GO</button>
+							</div>
+						</form>
+						<div class="col">
+							<div class="dropdown float-right">
+							  	<button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							    	Nombre de lignes
+							  	</button>
+							  	<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+								    <a class="dropdown-item" th:href="@{/clients(size=4 )}">4</a>
+								    <a class="dropdown-item" th:href="@{/clients(size=10 )}">10</a> 
+								    <a class="dropdown-item" th:href="@{/clients(size=20 )}">20</a>
+								    <a class="dropdown-item" th:href="@{/clients(size=30 )}">30</a>
+								    <a class="dropdown-item" th:href="@{/clients(size=50 )}">50</a>
+								    <a class="dropdown-item" th:href="@{/clients(size=80 )}">80</a> 
+								    <a class="dropdown-item" th:href="@{/clients(size=100 )}">100</a>
+							  	</div>
+							</div>
+						</div> 
+					</div>
+					
+					
+							
+		         	<div class="row">
+			         	
+			         	<div  sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_CLIENTS')" id="formulaireNouveauClient" class="col-md-4" style="display:none" >
+					 
+				          	<div class="card">
+					            <div class="card-header">
+					            	Nouveau client
+        					  		<a href="javascript:void(0)" class="closebtn" style="border:none; float:right" onclick="closeNavFormulaireNouveauClient()">
+				  					<i class="fa fa-close"></i>
+				  					</a>
+					            </div>
+					            <div class="card-body"> 
+									<form method="post" th:action="@{/clients/add}">
+										<table class="table"> 
+										  <tbody>
+										  	<tr>
+										      <td><b>Code</b></td>
+										      	<td>
+										       	<input th:value="${client.code}" type="text" name="code" class="form-control  form-control-sm">
+										       	<p th:errors="${client.code}" class="text-danger"></p>
+									       		<p th:if="${dejaExist}" class="text-danger">Reference dèja existe !</p>
+									       		</td>
+										    	</tr>
+										    <tr>
+										      <td><b>Nom</b></td>
+										      <td>
+										        <input th:value="${client.nom}" type="text" name="nom" 
+										        class="form-control  form-control-sm">
+										        <p th:errors="${client.nom}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Prénom</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${client.prenom}" type="text" name="prenom" 
+										        class="form-control  form-control-sm form-control  form-control-sm-sm">
+										        <p th:errors="${client.prenom}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Adresse</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${client.adresse}" type="text" name="adresse" 
+										        class="form-control  form-control-sm">
+										        <p th:errors="${client.adresse}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>E-mail</b></td>
+										      <td>
+										      		<input  class="form-control  form-control-sm" th:value="${client.email}" name="email"/> 
+										       		<p th:errors="${client.email}" class="text-danger"></p> 
+										      </td>
+										    </tr>
+										    <tr>
+										      <td><b>Tel.</b></td>
+										      	<td>
+										        	<input  class="form-control  form-control-sm"  name="tel" th:value="${client.tel}" />
+										        	<p th:errors="${client.tel}" class="text-danger"></p>
+									        	</td>
+										    </tr>
+										    <tr>
+										      <td><b>Age</b></td>
+										      	<td>
+										        	<input  class="form-control  form-control-sm" type="number" min="18" name="age" th:value="${client.age}" />
+										        	<p th:errors="${client.age}" class="text-danger"></p>
+									        	</td>
+										    </tr>
+										    <tr>
+										      <td>&nbsp;</td>
+										      <td>
+										      <span th:if="${alert}" th:text="${alert}"></span>
+										      <br>
+										      	<a class="btn btn-light" onclick="closeNavFormulaireNouveauClient()">Annuler</a>
+										        <button class="btn btn-primary" type="submit">Enregistrer</button>
+										      </td>
+										    </tr>
+										  </tbody>
+										</table>
+									</form>
+					            </div>
+							</div>
+				        </div>  
+				
+			         	
+			         	<div class="col" id="listeClients"> 
+							<div  class="limit">
+					           <table class="table table-hover">
+									<thead>
+										<tr>
+											<th></th>
+											<th>Code</th>
+											<th>Nom</th>
+											<th>Prénom</th>
+											<th>Age</th> 
+											<th>Adresse</th>
+											<th>E-mail</th>
+											<th>Tél.</th>
+											<th  sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_CLIENTS')">
+												<a class="btn btn-info btn-sm text-light" 
+													onclick="openNavFormulaireNouveauClient()">
+													<i class="fa fa-plus"></i> 
+													 Nouveau</a>
+												
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="frs:${clients}" th:id="'tr'+${frs.code}">
+											<td><img alt="" th:src="@{'../img/'+${frs.code}+'.png'}"  style="width:45px;height:45px" ></td>
+											<td th:text="${frs.code}"></td>
+											<td th:text="${frs.nom}"></td>
+											<td th:text="${frs.prenom}"></td>
+											<td th:text="${frs.age}"></td>
+											<td th:text="${frs.adresse}"></td>
+											<td th:text="${frs.email}"></td>
+											<td th:text="${frs.tel}"></td> 
+											<td  sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_CLIENTS')">
+												<a class="btn-danger btn-sm"  th:href="@{clients/delete(code=${frs.code})}" ><i class="fa fa-remove"></i></a>
+												<a id="btnEdit" class="btn-primary btn-sm text-light"  th:onclick="'openNavFormulaireUpdateClient(\''+${frs.code}+'\')'"><i class="fa fa-edit"></i></a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+				           </div>
+							<div>
+					          	<ul class="pagination bg-dark">
+									<li th:each="pa,status:${pages}" class="nav-item">
+										<a 	th:class="${status.index}==${pageCourant}?'alert-info nav-link ':'nav-link '" 
+											th:href="@{clients(page=${status.index},size=${size},motCle=${motCle})}" th:text="${status.index}+1"></a>
+									</li>
+								</ul> 
+				           	</div>
+			         	</div>  
+		         	
+			         	<div  sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_UPDATE_CLIENTS')" id="formulaireUpdateClient" class="col-md-4" style="display:none" > 
+				          	<div class="card">
+					            <div class="card-header">
+					            	Mise à jour du client
+        					  		<a href="javascript:void(0)" class="closebtn" style="border:none; float:right" onclick="closeNavFormulaireUpdateClient()">
+				  					<i class="fa fa-close"></i>
+				  					</a>
+					            </div>
+					            <div class="card-body"> 
+									<form method="post" th:action="@{/clients/update}" name="formulaireUpdateClient">
+							       		<input th:value="${client.code}" type="hidden" name="code" class="form-control  form-control-sm">
+										
+										<table class="table"> 
+										  <tbody>
+										  	<tr>
+										      <td><b>Référence</b></td>
+										      <td  th:value="${client.code}" id="codeClientToUpdate">
+										       </td>
+										    	</tr>
+										    <tr>
+										    <tr>
+										      <td><b>Nom</b></td>
+										      <td>
+										        <input th:value="${client.nom}" type="text" name="nom" 
+										        class="form-control  form-control-sm">
+										        <p th:errors="${client.nom}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Prénom</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${client.prenom}" type="text" name="prenom" 
+										        class="form-control  form-control-sm">
+										        <p th:errors="${client.prenom}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>Adresse</b>
+										        <br> </td>
+										      <td>
+										        <input th:value="${client.adresse}" type="text" name="adresse" 
+										        class="form-control  form-control-sm">
+										        <p th:errors="${client.adresse}" class="text-danger"></p></td>
+										    </tr>
+										    <tr>
+										      <td><b>E-mail</b></td>
+										      <td>
+										      		<input class="form-control  form-control-sm"
+										      			th:value="${client.email}" name="email" type="text" /> 
+										      		<p th:errors="${client.email}" class="text-danger"></p>  
+										      </td>
+										    </tr>
+										    <tr>
+										      <td><b>Tel.</b></td>
+										      	<td>
+										        	<input class="form-control  form-control-sm" name="tel" th:value="${client.tel}" />
+										        	<p th:errors="${client.tel}" class="text-danger"></p>  
+									        	</td>
+										    </tr>
+										    <tr>
+										      <td><b>Age</b></td>
+										      	<td>
+										        	<input class="form-control  form-control-sm" type="number" name="age" th:value="${client.age}" />
+										        	<p th:errors="${client.age}" class="text-danger"></p>  
+									        	</td>
+										    </tr>
+										    <tr>
+										      <td>&nbsp;</td>
+										      <td>
+										      <span th:if="${alert}" th:text="${alert}"></span>
+										      <br>
+										      	<a class="btn btn-light" onclick="closeNavFormulaireUpdateClient()">Annuler</a>
+										        <button class="btn btn-primary" type="submit">Enregistrer</button>
+										      </td>
+										    </tr>
+										  </tbody>
+										</table>
+									</form>
+					            </div>
+							</div>
+				        </div>  
+					</div> 
+				
+				</div>
+			</div> 
+	</div>
+		  
+	<script th:if="${addFailed}" > openNavFormulaireNouveauClient(); </script> 
+	<script th:if="${updateFailed}" > openNavFormulaireUpdateClient(); </script> 
+	
+	
+</div>  
+</body>
+</html>
