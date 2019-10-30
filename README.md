@@ -13,4 +13,5 @@ Au niveau de la conception, cette application est mis en place à l'aide de l'ou
 L'application est réalisé en utilisant le Framework Spring Boot en generale; où l'implementation de l'architecture MVC, l'utilisation du moteur de template Thymleaf, l'implementation du module DAO, et l'integration du Spring Security.
 
 Le rapport du projet : https://drive.google.com/open?id=1bHvbtHwu2hGBmZuiHw7aOSCTSOr6eJ1t
-Video illustratif : -
+.
+Vidéo illustratif : https://drive.google.com/open?id=1fRqJ735rau7c_0TOqZgFQyBFXZ3TEGLh
